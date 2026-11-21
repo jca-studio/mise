@@ -2,6 +2,12 @@
 
 Paste recipe links, recipe text or photos of recipe cards. Mise builds one combined shopping list, saves the instructions, and makes a prep plan that works backward from your serving time.
 
+## Live cooking
+
+The **Cook** tab runs the meal once you start: target vs estimated dinner time, one "do this now" card, temperature tracking with a rate-based estimate, every dish's state, upcoming tasks (timed or condition-based), appliances, and a chat/voice bar ("pork's in", "it's 120", "the beans are moldy"). The app keeps the meal state; Claude reads it and returns structured changes, so no dish drops out of the plan. Kitchen notes on the home screen are used in every plan.
+
+Reference scenario: the "Sunday Roast: Pork (Autumn)" meal card.
+
 ## How it's built
 
 - `index.html`: the whole app (no build step)

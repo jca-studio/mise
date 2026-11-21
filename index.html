@@ -19,7 +19,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Public Sans"
 h1,h2,h3{font-family:Archivo,system-ui,sans-serif;line-height:1.1;margin:0;text-wrap:balance}
 .wrap{max-width:760px;margin:0 auto;padding:0 max(4vw,16px)}
 header{background:var(--tom);color:var(--tomInk);padding:22px 0 18px}
-.mealname{font:800 clamp(28px,6vw,42px)/1.05 Archivo,sans-serif;background:none;border:0;color:inherit;width:100%;padding:4px 0;border-bottom:2px solid transparent}
+.mealname{font:800 clamp(22px,5.2vw,42px)/1.05 Archivo,sans-serif;background:none;border:0;color:inherit;width:100%;padding:4px 0;border-bottom:2px solid transparent}
 .mealname:focus{outline:none;border-bottom-color:var(--saf)}
 .mealname::placeholder{color:rgba(255,255,255,.7)}
 .settings{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:14px}
@@ -102,6 +102,56 @@ summary{padding:12px 16px;cursor:pointer;font-weight:600;font-size:15px;min-heig
 .spin{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .8s linear infinite}
 @keyframes sp{to{transform:rotate(1turn)}}
 @media(prefers-reduced-motion:reduce){.spin{animation:none}}
+/* live cooking */
+.sec{font:800 12px Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:24px 0 8px}
+.times{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.tbox{background:var(--panel);border-radius:14px;padding:12px 14px}
+.tbox small{display:block;font-size:13px;color:var(--mute)}
+.tbox b{font:800 26px/1.15 Archivo,sans-serif}
+.tbox.late b{color:var(--tom)}
+.reason{font-size:14px;color:var(--mute);margin:8px 0 0}
+.nowcard{background:var(--ink);color:#fff;border-radius:18px;padding:18px 18px 16px;margin-top:14px}
+.nowcard small{font:800 12px Archivo,sans-serif;letter-spacing:.08em;color:var(--saf)}
+.nowcard h2{font-size:clamp(24px,6vw,32px);margin:6px 0 8px;text-transform:none}
+.nowcard p{margin:2px 0;font-size:16px;opacity:.92}
+.nowcard .nxt{margin-top:10px;font-weight:600;color:var(--saf)}
+.trow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.trow b{font-family:Archivo}
+.trow .eta{grid-column:1/-1;font-size:14px;color:var(--mute)}
+.trow form{display:flex;gap:6px}
+.trow input{width:80px;font:16px "Public Sans";padding:8px;border-radius:10px;border:1px solid var(--line);min-height:44px}
+.drow{border-bottom:1px solid var(--line)}
+.drow summary{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;min-height:48px}
+.drow summary::-webkit-details-marker{display:none}
+.drow .body{padding:0 0 14px}
+.chip{font-size:13px;font-weight:600;background:var(--fresh);color:var(--herb);border-radius:99px;padding:2px 10px;white-space:nowrap}
+.chip.mod{background:var(--warn);color:#7a5400}
+.chip.gone{background:var(--panel);color:var(--mute);text-decoration:line-through}
+.up{display:grid;grid-template-columns:5.6em minmax(0,1fr) auto;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);align-items:start}
+.up .tm{font:800 16px/1.3 Archivo,sans-serif}
+.up .cond{font:700 13px/1.3 Archivo,sans-serif;color:var(--herb)}
+.up.warn{background:var(--warn);border-radius:10px;padding:10px}
+.up input{width:22px;height:22px;accent-color:var(--herb)}
+.app{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
+.app span{color:var(--mute);text-align:right}
+.chat .msg{margin:8px 0;padding:10px 12px;border-radius:12px;font-size:15px;max-width:92%}
+.chat .user{background:var(--panel);margin-left:auto}
+.chat .ai{border:1px solid var(--line)}
+.chat .ai .chg{display:block;margin-top:6px;font-size:13px;color:#7a5400}
+.chat details{border:0}.chat summary{padding:4px 0;min-height:0;font-size:13px;color:var(--mute)}
+.cmd{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:10px 0 calc(10px + env(safe-area-inset-bottom))}
+.cmd .wrap{display:flex;gap:8px;align-items:center}
+.cmd input[type=text]{flex:1;font:16px "Public Sans";padding:10px 12px;border-radius:12px;border:1px solid var(--line);min-height:48px}
+.cmd button,.cmd .btn{min-height:48px;padding:0 14px}
+.cmd .mic.on{background:var(--herb)}
+body.cooking main{padding-bottom:120px}
+.toast{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:9;background:var(--ink);color:#fff;padding:12px 16px;border-radius:12px;font-weight:600;max-width:92vw;box-shadow:0 6px 24px rgba(0,0,0,.2)}
+.setup label{display:grid;gap:4px;font-size:14px;font-weight:600;margin:12px 0}
+.setup input,.setup textarea{font:16px "Public Sans";padding:10px;border-radius:10px;border:1px solid var(--line);min-height:44px;width:100%}
+.notes-ed li{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
+.notes-ed ul{list-style:none;margin:0;padding:0}
+.suggest{background:var(--warn);border-radius:12px;padding:10px 12px;margin-top:10px;font-size:14px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.temps-log{font-size:14px;color:var(--mute)}
 /* home: meal cards */
 #home{padding-top:28px;padding-bottom:60px}
 .brand{font:800 34px/1 Archivo,sans-serif;color:var(--tom);margin:0 0 4px}
@@ -129,6 +179,9 @@ body:not(.home) #home{display:none}
   <h1 class="brand">Mise</h1>
   <p class="tag">Your planned meals</p>
   <div class="meals" id="mealCards"></div>
+  <div class="sec">Kitchen notes</div>
+  <p class="hint" style="margin-top:0">What Mise should remember about how you cook. It uses these in every plan and while you cook. Edit or delete anything.</p>
+  <div class="notes-ed" id="notesEd"></div>
 </section>
 <header><div class="wrap">
   <div class="topbar"><a href="#meals">← All meals</a><button data-act="delmeal">Delete meal</button></div>
@@ -144,6 +197,7 @@ body:not(.home) #home{display:none}
   <a href="#recipes" data-v="recipes">Recipes<small id="nR">0</small></a>
   <a href="#shopping" data-v="shopping">Shopping<small id="nS">0</small></a>
   <a href="#prep" data-v="prep">Prep plan</a>
+  <a href="#cook" data-v="cook">Cook</a>
 </div></nav>
 <main class="wrap">
   <div id="sampleBar"></div>
@@ -174,7 +228,16 @@ body:not(.home) #home{display:none}
     <div id="planTop"></div>
     <div id="planList"></div>
   </section>
+
+  <section class="view" id="v-cook"><div id="cookBody"></div></section>
 </main>
+<div class="cmd" id="cmd" hidden><div class="wrap">
+  <input type="text" id="say" placeholder="“I just put the pork in” · “It’s 120”" aria-label="Tell Mise what's happening" enterkeyhint="send">
+  <button class="ghost mic" id="mic" aria-label="Speak">🎙</button>
+  <label class="btn ghost" for="cmdPhoto" aria-label="Add a photo">📷</label><input type="file" id="cmdPhoto" accept="image/*">
+  <button id="sendBtn">Send</button>
+</div></div>
+<div class="toast" id="toast" hidden></div>
 
 <script>
 {
@@ -210,16 +273,81 @@ tasks:[
 {at:"2026-11-26T15:50",min:10,recipe:"Turkey",what:"Carve; chives on potatoes, shallots on beans",kind:"serve"},
 {at:"2026-11-26T16:00",min:0,recipe:"",what:"Serve",kind:"serve"}],
 tips:["One oven: the turkey and potatoes overlap at 350°F, so put the potatoes on the lower rack.","The turkey's 30-minute rest is your buffer. If you're running late, it can rest up to 45 min."]}};
+/* Sunday roast: the real cooked session, kept as a finished meal you can cook again.
+   Times are clock times from the day; quantities only where they were set. */
+const I=(qty,unit,item,note,aisle,fresh)=>({qty,unit,item,note:note||"",aisle,fresh:!!fresh});
+const ROAST_NOTES=[
+"Prefers crisp Sauvignon Blanc or Chenin Blanc over oaky Chardonnay.",
+"Yorkshire pudding fat has not been hot enough in the past: heat the greased tin well before the batter goes in.",
+"Mashed potatoes went watery when held with dairy in a closed Instant Pot: drain, let steam off, add butter and cream close to serving.",
+"Likes caramelized shallots and red onions.",
+"Likes herbs that complement each other across dishes.",
+"Wants exact, actionable timelines."];
+const ROAST={id:"sunday-roast-pork",done:true,
+meal:{name:"Sunday Roast: Pork (Autumn)",serveAt:"",guests:4,ovens:1,busy:"Swim lesson, nap and an afternoon park visit"},checks:{},plan:null,
+recipes:[
+{id:"rp1",title:"Garlic-stuffed apple butter–Dijon pork loin",source:"",servings:4,target:4,mode:"dayof",activeMin:20,totalMin:150,ovenTempF:375,targetTempF:145,state:"Served",
+ ingredients:[I(3.88,"lb","boneless pork loin","not rolled or tied","meat & seafood"),I(null,"","garlic","cloves slivered, pushed into slits on the underside","produce"),I(null,"","shallots","halved, seasoned, as a bed under the pork","produce"),I(null,"","fresh thyme","","produce",1),I(2,"tbsp","homemade apple butter","glaze","pantry"),I(1,"tbsp","tarragon dijon mustard","glaze","pantry"),I(1,"tsp","apple cider vinegar","glaze","pantry"),I(null,"","black pepper","","spices"),I(null,"","salt","small pinch in glaze","spices")],
+ steps:["Cut slits in the underside of the pork and push in the garlic.","Season and set on a bed of seasoned shallots with thyme in the roasting pan.","Roast uncovered at 375°F. Uncovered is right for browning; tent with foil only if the glaze browns too fast.","Stir the glaze: apple butter, tarragon Dijon, cider vinegar, pepper and a pinch of salt. Hold it until the pork reaches 115–125°F, then brush on.","Roast to 145°F internal, checking often near the end. Rest before carving; the drippings go to the gravy."],
+ makeAhead:"Glaze can be stirred together ahead.",finish:"Carve after resting.",hold:"Rests tented while the Yorkshires bake.",
+ temps:[{at:"16:36",f:89},{at:"16:50",f:94},{at:"",f:110},{at:"17:16",f:120},{at:"",f:135},{at:"17:47",f:140},{at:"",f:141}],
+ changes:[{at:"",what:"Thyme added to the pork."},{at:"",what:"Glaze held until 115–125°F instead of going on at the start."}]},
+{id:"rp2",title:"Roasted apples and caramelized shallots",source:"",servings:4,target:4,mode:"dayof",activeMin:5,totalMin:40,ovenTempF:375,state:"Served",
+ ingredients:[I(null,"","fresh apples","cut into wedges","produce"),I(null,"","shallots","from the bed under the pork","produce")],
+ steps:["The shallots roast under the pork the whole time.","Add the apple wedges around the pork for the final part of roasting."],makeAhead:"",finish:"",hold:"Holds warm in the pan while the pork rests.",temps:[],changes:[]},
+{id:"rp3",title:"Yorkshire puddings",source:"",servings:4,target:4,mode:"dayof",activeMin:10,totalMin:35,ovenTempF:425,state:"Served",
+ ingredients:[I(3,"","eggs","standard ratio; adjust to your recipe","dairy & eggs"),I(1,"cup","all-purpose flour","","pantry"),I(1,"cup","milk","","dairy & eggs"),I(null,"","fat or oil","for the muffin tin","pantry")],
+ steps:["Make the batter ahead and let it rest.","Grease the muffin tin. Put it in the oven when the pork reaches 130–135°F so the fat gets properly hot.","When the pork comes out at 145°F, raise the oven to 425°F.","Once the fat is very hot, pour in the batter.","Bake 20–25 minutes without opening the oven."],
+ makeAhead:"Batter can rest for an hour or more.",finish:"Serve straight from the oven.",hold:"Doesn't hold; time them to come out last.",temps:[],
+ changes:[{at:"",what:"Tin goes in before the pork comes out, because the fat has not been hot enough before."}]},
+{id:"rp4",title:"Creamy Jean-Georges-style mashed potatoes",source:"",servings:4,target:4,mode:"dayof",activeMin:15,totalMin:40,ovenTempF:null,state:"Served",
+ ingredients:[I(null,"","potatoes","","produce"),I(null,"","butter","","dairy & eggs"),I(null,"","cream","warm","dairy & eggs"),I(null,"","salt","","spices")],
+ steps:["Pressure cook the potatoes in the Instant Pot for 6 minutes and let the pressure release naturally.","Once the pressure has fully released, drain and let excess moisture steam off.","Rice them while hot.","Hold with the lid only halfway on so steam doesn't collect.","Close to serving, finish with butter and warm cream."],
+ makeAhead:"",finish:"Butter and warm cream go in close to serving.",hold:"Hold riced, lid ajar; don't add dairy until the end.",temps:[],
+ changes:[{at:"",what:"Dairy moved to the end and the lid left ajar, after watery potatoes last time."}]},
+{id:"rp5",title:"Delicata squash with red onion and sage-maple Dijon dressing",source:"",servings:4,target:4,mode:"dayof",activeMin:15,totalMin:35,ovenTempF:null,state:"Served",
+ ingredients:[I(null,"","delicata squash","sliced","produce"),I(null,"","red onion","","produce"),I(null,"","olive oil","to toss","pantry"),I(null,"","paprika","","spices"),I(1,"tbsp","olive oil","dressing","pantry"),I(1,"tbsp","apple cider vinegar","dressing","pantry"),I(1,"tsp","dijon mustard","dressing","pantry"),I(0.75,"tsp","maple syrup","½–1 tsp","pantry"),I(null,"","fresh sage","","produce",1)],
+ steps:["Toss the squash and red onion with olive oil, paprika, salt and pepper.","Whisk the dressing: olive oil, cider vinegar, Dijon, maple syrup, sage, salt and pepper.","Because the squash was already dressed: air-fry at 375°F for about 14–18 minutes, turning halfway.","Watch the maple and mustard so they don't burn."],
+ makeAhead:"",finish:"",hold:"Best straight from the air fryer.",temps:[],
+ changes:[{at:"",what:"Moved from the oven to the air fryer to free the oven."},{at:"",what:"Already dressed before cooking, so dropped to 375°F for 14–18 min instead of 390°F for 12–16."}]},
+{id:"rp6",title:"Buttered minted peas with shallots",source:"",servings:4,target:4,mode:"dayof",activeMin:8,totalMin:8,ovenTempF:null,state:"Served",
+ ingredients:[I(null,"","butter","","dairy & eggs"),I(1,"","shallot","finely minced","produce"),I(null,"","frozen peas","","frozen"),I(null,"","water","a small splash","other"),I(null,"","fresh mint","","produce",1)],
+ steps:["Soften the shallot in butter.","Add the peas and a small splash of water; cook until just hot.","Lightly crush some of the peas.","Off the heat, stir in the mint. Season."],
+ makeAhead:"",finish:"Mint goes in off the heat, right before serving.",hold:"Best cooked in the final minutes.",temps:[],
+ changes:[{at:"",what:"Replaced the green beans, which had mold. Minted rather than mushy, given how rich the rest of the meal is."}]},
+{id:"rp7",title:"White wine–tarragon pork gravy",source:"",servings:4,target:4,mode:"dayof",activeMin:12,totalMin:12,ovenTempF:null,state:"Served",
+ ingredients:[I(null,"","pork drippings","most of the fat removed; keep about 1 tbsp","other"),I(0.5,"cup","sauvignon blanc","reserve it before drinking the rest","other"),I(0.875,"cup","chicken stock","¾–1 cup","pantry"),I(null,"","flour","to thicken","pantry"),I(null,"","dijon mustard","optional","pantry"),I(null,"","fresh tarragon","","produce",1),I(null,"","cold butter","to finish","dairy & eggs")],
+ steps:["Pour the drippings into a saucepan rather than putting the roasting pan on the burner, since it may not be stovetop safe.","Spoon off most of the fat, keeping about 1 tablespoon.","Cook the flour in the fat, then add the wine and reduce.","Add the stock and simmer to thicken. Optional Dijon.","Finish with tarragon and a knob of cold butter."],
+ makeAhead:"",finish:"Make while the pork rests and the Yorkshires bake.",hold:"Keep warm on low.",temps:[],
+ changes:[{at:"",what:"Switched from a reduced pan sauce to a flour-thickened gravy."}]}],
+live:{status:"done",equipment:"Oven (Bake, Convection Bake, Convection Roast), Instant Pot, air fryer, stovetop, roasting pan, muffin tin, meat thermometer, potato ricer, saucepans",
+ target:"17:30",actual:"about 6:15–6:25 PM",
+ estimate:null,now:null,tasks:[],chat:[],reminders:[],appliances:[],suggest:[],
+ events:[
+ {at:"",text:"Dinner moved from 5:00 to 5:30 PM."},
+ {at:"",text:"Pork into a 375°F oven on seasoned shallots, uncovered."},
+ {at:"",text:"Green beans had mold: removed, frozen peas added."},
+ {at:"",text:"Squash moved to the air fryer; it was already dressed."},
+ {at:"16:36",text:"Pork 89°F. Cooking slower than expected."},
+ {at:"17:16",text:"Pork 120°F. Glaze on."},
+ {at:"",text:"Pork 135°F. Greased Yorkshire tin into the oven."},
+ {at:"",text:"Potatoes drained, riced, held with the lid halfway on."},
+ {at:"",text:"½ cup Sauvignon Blanc reserved for the gravy."},
+ {at:"",text:"Gravy switched to flour-thickened; drippings moved to a saucepan."},
+ {at:"17:47",text:"Pork 140°F. Estimate now 6:15–6:25 PM."},
+ {at:"",text:"Dinner served around 6:15–6:25 PM."}],
+ reflection:{worked:"",change:""}}};
+
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9);
-const VIEWS=["meals","recipes","shopping","prep"];
-const blankMeal=()=>({id:uid(),meal:{name:"",serveAt:"",guests:"",ovens:1},recipes:[],plan:null,checks:{}});
-const sampleMeal=()=>({...JSON.parse(JSON.stringify(SAMPLE)),id:"sample"});
+const VIEWS=["meals","recipes","shopping","prep","cook"];
+const blankMeal=()=>normMeal({id:uid(),meal:{name:"",serveAt:"",guests:"",ovens:1,busy:""},recipes:[],plan:null,checks:{}});
+const sampleMeal=()=>normMeal({...JSON.parse(JSON.stringify(SAMPLE)),id:"sample"});
 
 /* every meal lives in DB.meals; S is the meal that's open */
-let DB=load();
+let DB=seed(load());
 let S=DB.meals.find(m=>m.id===DB.cur)||null;
 let view=(location.hash||"").slice(1);
 if(!VIEWS.includes(view)||(!S&&view!=="meals"))view="meals";
@@ -232,8 +360,25 @@ function load(){
   }catch(e){}
   return {meals:[sampleMeal()],cur:null};
 }
+/* one-time additions for every user: the Sunday roast record and starting kitchen notes */
+function seed(db){
+  db.prefs=db.prefs||{notes:[],equipment:"",speak:false};
+  db.seeded=db.seeded||{};
+  if(!db.seeded.roast){db.meals.push(JSON.parse(JSON.stringify(ROAST)));db.seeded.roast=1}
+  if(!db.seeded.notes){for(const n of ROAST_NOTES)if(!db.prefs.notes.includes(n))db.prefs.notes.push(n);
+    if(!db.prefs.equipment)db.prefs.equipment=ROAST.live.equipment;db.seeded.notes=1}
+  for(const m of db.meals)normMeal(m);
+  return db;
+}
+/* fill in fields added after a meal was first saved */
+function normMeal(m){
+  m.live=m.live||{status:"idle",events:[],tasks:[],chat:[],reminders:[],appliances:[],suggest:[]};
+  for(const k of ["events","tasks","chat","reminders","appliances","suggest"])m.live[k]=m.live[k]||[];
+  for(const r of m.recipes){r.temps=r.temps||[];r.changes=r.changes||[];r.state=r.state||"";if(r.targetTempF===undefined)r.targetTempF=null}
+  return m;
+}
 function save(){try{localStorage.setItem("mise-meals",JSON.stringify(DB))}catch(e){}}
-function openMeal(m){S=m;DB.cur=m.id;save();go("recipes")}
+function openMeal(m){S=m;DB.cur=m.id;save();go(m.live&&m.live.status!=="idle"?"cook":"recipes")}
 function go(v){if(location.hash==="#"+v){view=v;render()}else location.hash=v}
 /* replace the open meal (used when leaving the sample) */
 function swapMeal(m){const i=DB.meals.indexOf(S);if(i>=0)DB.meals[i]=m;else DB.meals.push(m);S=m;DB.cur=m.id}
@@ -296,17 +441,20 @@ function renderHome(){
   const ts=m=>m.meal.serveAt?new Date(m.meal.serveAt).getTime():Infinity;
   /* upcoming meals first (soonest first), then past meals (most recent first) */
   const list=DB.meals.filter(m=>(m.meal.name||"").trim()||m.recipes.length).sort((a,b)=>{
+    const ca=a.live?.status==="cooking",cb=b.live?.status==="cooking";if(ca!==cb)return ca?-1:1;
+    if(!!a.done!==!!b.done)return a.done?1:-1;
     const pa=ts(a)<now,pb=ts(b)<now;if(pa!==pb)return pa?1:-1;return pa?ts(b)-ts(a):ts(a)-ts(b)});
   $("mealCards").innerHTML=list.map(m=>{
     const t=ts(m),past=t<now,day0=x=>new Date(x).setHours(0,0,0,0),days=Math.round((day0(t)-day0(now))/864e5);
     const date=m.meal.serveAt?new Date(m.meal.serveAt).toLocaleDateString([], {weekday:"short",month:"short",day:"numeric",year:"numeric"}):"No date yet";
     const when=t===Infinity?"":past?"":days<=1?`<span class="soon">${days<=0?"Today":"Tomorrow"}</span>`:days<=14?`<span class="soon">In ${days} days</span>`:"";
-    return `<button class="mcard${past?" past":""}" data-open="${esc(m.id)}"><b>${esc(m.meal.name||"Untitled meal")}</b><span>${date}</span><span>${m.recipes.length} recipe${m.recipes.length===1?"":"s"}${m.sample?" · sample":""}</span>${when}</button>`;
+    const n=m.recipes.filter(r=>!r.removed).length,cooking=m.live&&m.live.status==="cooking";
+    return `<button class="mcard${past||m.done?" past":""}" data-open="${esc(m.id)}"><b>${esc(m.meal.name||"Untitled meal")}</b><span>${m.done&&!m.meal.serveAt?"Cooked":date}</span><span>${n} ${m.done?"dish":"recipe"}${n===1?"":"es".slice(m.done?0:1)}${m.sample?" · sample":""}</span>${cooking?`<span class="soon">Cooking now</span>`:m.done?"":when}</button>`;
   }).join("")+`<button class="mcard new" data-act="newmeal">+ New meal</button>`;
 }
 function render(){
   document.body.classList.toggle("home",view==="meals");
-  if(view==="meals"){renderHome();return}
+  if(view==="meals"){$("cmd").hidden=true;document.body.classList.remove("cooking");renderHome();renderNotes();return}
   $("mealName").value=S.meal.name||"";
   $("serveAt").value=S.meal.serveAt||"";
   $("guests").value=S.meal.guests||"";
@@ -315,7 +463,7 @@ function render(){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id==="v-"+view));
   $("sampleBar").innerHTML=S.sample?`<div class="sample"><span>Sample meal so you can see how it works.</span><button class="ghost" data-act="clear">Start my own</button></div>`:"";
   $("nR").textContent=S.recipes.length;
-  countdown();renderRecipes();renderShop();renderPlan();
+  countdown();renderRecipes();renderShop();renderPlan();renderCook();
 }
 function countdown(){
   const el=$("countdown");if(!S.meal.serveAt){el.textContent="Set a serving time to build a plan.";return}
@@ -385,7 +533,7 @@ function stepText(r,s,k){const d=document.createElement("div");d.innerHTML=stepH
 
 function shopItems(){
   const map=new Map();
-  for(const r of S.recipes){const k=scale(r);
+  for(const r of S.recipes.filter(r=>!r.removed)){const k=scale(r);
     for(const i of r.ingredients){
       const name=(i.item||"").toLowerCase().trim();if(!name)continue;
       const key=name+"|"+(i.unit||"").toLowerCase();
@@ -445,7 +593,8 @@ Return JSON only, no prose: {"recipes":[{"title":string,"source":url or "","serv
 "steps":[each instruction as one plain sentence or two. Wherever a step uses an ingredient, put a token right before the ingredient's name: [[n]] where n is the ingredient's 0-based index in "ingredients" if the step uses all of it, or [[n:q]] if it uses only part, with q in that ingredient's unit (e.g. "[[3:6]] butter" for 6 of 8 tbsp). Do not write the amount yourself; the app replaces the token with the scaled amount. Every ingredient with a quantity should get a token in at least one step.],
 "makeAhead":what can be done ahead and how many days, safely and without losing quality ("" if nothing),
 "finish":what must happen in the last minutes (garnish, crisping, dressing),
-"hold":how well it holds hot after cooking and how}],"error":""}
+"hold":how well it holds hot after cooking and how,
+"targetTempF":safe target internal temperature in °F for a roast, whole bird, chops or fish that should be checked with a thermometer (pork 145, poultry 165, ground meat 160), else null}],"error":""}
 Convert fractions to decimals. Estimate times from the steps when not stated. Set "source" to the page URL a recipe came from.
 If a URL's page could not be fetched or has no recipe in it, skip it. If nothing usable is left, return {"recipes":[],"error":"need_text"}. Never rebuild a recipe from its title or from memory.`;
 
@@ -464,7 +613,8 @@ async function addRecipes(){
     if(S.sample){const m=blankMeal();m.meal.guests=S.meal.guests;swapMeal(m)}
     for(const r of rs){S.recipes.push({id:uid(),title:r.title||"Untitled recipe",source:r.source||(urls.length===1?urls[0]:""),
       servings:+r.servings||+S.meal.guests||4,target:+S.meal.guests||+r.servings||4,mode:"dayof",activeMin:+r.activeMin||0,totalMin:+r.totalMin||0,ovenTempF:r.ovenTempF||null,
-      ingredients:Array.isArray(r.ingredients)?r.ingredients:[],steps:Array.isArray(r.steps)?r.steps:[],makeAhead:r.makeAhead||"",finish:r.finish||"",hold:r.hold||""})}
+      ingredients:Array.isArray(r.ingredients)?r.ingredients:[],steps:Array.isArray(r.steps)?r.steps:[],makeAhead:r.makeAhead||"",finish:r.finish||"",hold:r.hold||"",
+      targetTempF:+r.targetTempF||null,state:"",temps:[],changes:[]})}
     $("src").value="";$("photo").value="";
     status("addStatus",`Added ${rs.map(r=>r.title).join(", ")}.`);save();render();
   }catch(e){status("addStatus",e.code==="rate_limited"?"Too many requests just now. Try again in a minute.":(e.message||"Something went wrong."),1)}
@@ -477,13 +627,18 @@ async function buildPlan(){
   const now=new Date(),local=new Date(now-now.getTimezoneOffset()*6e4).toISOString().slice(0,16);
   const prompt=`You are an experienced caterer pacing a home cook's large meal. Right now it is ${local} local time.
 Serving time: ${S.meal.serveAt}. Guests: ${S.meal.guests||"unknown"}. Ovens: ${S.meal.ovens||1}.
+Equipment: ${S.live.equipment||DB.prefs.equipment||"a standard oven and stovetop"}.
+The cook is not available: ${S.meal.busy||"no restrictions given"}. Don't schedule hands-on work then.
+Kitchen notes from this cook (use them): ${JSON.stringify(DB.prefs.notes)}
 Recipes (JSON): ${JSON.stringify(recipes)}
 Build a timeline. Rules:
 - Work backward from serving time so every dish reaches the table at its best temperature together. Use resting, warm-oven holding (170–200°F), covered reheating and staggered stovetop finishes.
 - "make ahead" recipes: do the steps that can safely be done ahead on the days before (never more days ahead than the recipe allows), spread so no single day is heavy, usually in an afternoon or evening slot. Leave last-minute steps (finish) for the day of. Never schedule anything before right now.
 - "day of" recipes happen entirely on the serving day.
 - The cook wants to spend the serving day with family: minimise hands-on time that day and cluster it.
-- Respect oven count and temperatures: no two dishes in the same oven at different temperatures at once unless you say how.
+- Respect oven count and temperatures: no two dishes in the same oven at different temperatures at once unless you say how. Use the other equipment (air fryer, Instant Pot, stovetop) to free the oven. Include preheating, resting, pressure release and safe holding.
+- Don't stack more than one hands-on task at the same moment; one person is cooking.
+- Food safety beats the serving time: use safe internal temperatures and safe holding.
 - If any recipe is make ahead, add a "shop" task for the main shop before the first prep task, and a "shop" task for fresh items the day before serving.
 - End with a "serve" task at the serving time.
 - In any task that uses an ingredient, include its amount exactly as the steps give it (e.g. "Mash potatoes with 8 oz cream cheese and 1 cup warm milk"), so the cook never has to look it up.
@@ -498,6 +653,279 @@ Return JSON only: {"summary":one sentence on the shape of the plan including tot
 }
 function status(id,msg,err){const el=$(id);if(el){el.textContent=msg;el.classList.toggle("err",!!err)}}
 
+/* ---------- live cooking ---------- */
+const localISO=(d=new Date())=>new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,16);
+const clock=at=>{if(!at)return "";if(/^\d\d:\d\d$/.test(at)){const [h,m]=at.split(":").map(Number);return new Date(2000,0,1,h,m).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}
+  const d=new Date(at);return isNaN(d)?at:d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})};
+const L=()=>S.live;
+const activeDishes=()=>S.recipes.filter(r=>!r.removed);
+const norm=s=>String(s||"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+function findDish(name){
+  const n=norm(name);if(!n)return null;
+  return S.recipes.find(r=>norm(r.title)===n)||S.recipes.find(r=>norm(r.title).includes(n)||n.includes(norm(r.title)))
+    ||S.recipes.find(r=>n.split(" ").filter(w=>w.length>3).some(w=>norm(r.title).includes(w)));
+}
+function addEvent(text,dish){
+  const now=Date.now(),ev=L().events;
+  /* the same event sent twice in a minute (double tap, flaky network) is kept once */
+  if(ev.some(e=>e.text===text&&e.ts&&now-e.ts<6e4))return;
+  ev.push({at:localISO(),ts:now,text,dish:dish||""});
+}
+const ingText=(i,k)=>`${i.qty!=null?fq(i.qty*k)+(i.unit?" "+i.unit:"")+" ":""}${i.item}${i.note?", "+i.note:""}`;
+
+/* temperature: projection from the user's own readings; always an estimate */
+function tempETA(r){
+  const t=r.temps.filter(x=>x.ts||/T/.test(x.at||"")).map(x=>({ms:x.ts||new Date(x.at).getTime(),f:x.f}));
+  if(!r.targetTempF||!t.length)return null;
+  const last=t[t.length-1];
+  if(last.f>=r.targetTempF)return {reached:true,last};
+  const prev=[...t].reverse().find(x=>last.ms-x.ms>=4*6e4&&x.f<last.f);
+  if(!prev)return {last};
+  const rate=(last.f-prev.f)/((last.ms-prev.ms)/6e4);
+  const mins=(r.targetTempF-last.f)/rate;
+  return {last,rate,lo:Math.max(1,Math.round(mins*0.8)),hi:Math.round(mins*1.4+2)};
+}
+function logTemp(r,f,quiet){
+  const now=Date.now(),lt=r.temps[r.temps.length-1];
+  if(lt&&lt.f===f&&lt.ts&&now-lt.ts<2*6e4)return false;
+  r.temps.push({at:localISO(),ts:now,f,src:"you"});
+  if(!quiet)addEvent(`${r.title}: ${f}°F`,r.title);
+  return true;
+}
+
+/* everything Claude needs to act as the kitchen coordinator; the app keeps this state, not the chat */
+function liveContext(){
+  return {
+    now:localISO(),
+    meal:{name:S.meal.name,targetServe:S.meal.serveAt,guests:S.meal.guests,ovens:S.meal.ovens,equipment:L().equipment||DB.prefs.equipment,notAvailable:S.meal.busy||""},
+    kitchenNotes:DB.prefs.notes,
+    dishes:activeDishes().map(r=>{const k=scale(r);return {title:r.title,state:r.state||"not started",mode:r.mode,targetInternalF:r.targetTempF,ovenTempF:r.ovenTempF,
+      temps:r.temps.slice(-6).map(x=>({at:x.at,f:x.f})),ingredients:r.ingredients.map(i=>ingText(i,k)),steps:r.steps.map(s=>stepText(r,s,k)),
+      finish:r.finish,hold:r.hold,changesSoFar:r.changes.map(c=>c.what)}}),
+    removedDishes:S.recipes.filter(r=>r.removed).map(r=>r.title),
+    tasks:L().tasks.map(t=>({at:t.at||null,when:t.when||"",dish:t.dish,what:t.what,done:!!t.done})),
+    estimate:L().estimate||null,appliances:L().appliances,
+    recentEvents:L().events.slice(-15).map(e=>`${e.at} ${e.text}`),
+    conversation:L().chat.slice(-8).map(c=>`${c.role==="user"?"Cook":"You"}: ${c.text}`)
+  };
+}
+const LIVE_RULES=`You are Mise, an experienced chef standing beside a home cook, coordinating an entire meal in real time. The app stores the meal state below; you read it, interpret what the cook says or shows you, and return structured changes. The app is the record, so stay consistent with it.
+Rules:
+- Food safety comes before the serving time, always. Use safe internal temperatures (pork 145°F then rest; poultry 165°F; ground meat 160°F), safe holding (hot food at 140°F or above, no more than 2 hours in 40–140°F), pressure-cooker safety (never open before pressure has fully released), and hot-fat caution. If a dish can't be ready safely by the target, move the estimate rather than cutting corners.
+- Temperature projections and timings are estimates. Give ranges, never promise. A temperature counts only when the cook reports it.
+- Reply action first, in one or two short sentences the cook can hear while their hands are busy. Put any "why" in detail.
+- Never lose a dish. Every dish that isn't served or removed must stay in the task list.
+- When the cook did something out of order or differently (dressed the squash early, drank some of the wine), adapt the remaining steps to what actually happened. Don't restart the recipe and don't scold.
+- Substitutions and new ingredients: update that dish's ingredients and steps, and judge it against the whole meal (richness, herbs used elsewhere, oven space).
+- Resolve short references ("how much butter?", "it's 120") from the recent conversation and events. If it's genuinely ambiguous and the answer matters, ask one short question instead of guessing.
+- Speech-to-text mishears: "time" may mean thyme, "Ps" peas, "Yorkie 10" Yorkshire tin. Interpret in context; confirm only if the mistake would matter.
+- If you change advice you gave earlier, say so in changedAdvice with the reason.
+- Coordinate appliances: oven temperature conflicts, preheating, the air fryer and Instant Pot as extra capacity, resting and pressure release as free time. Don't stack more hands-on tasks at once than one person can do; respect when the cook isn't available.
+- For a photo of an appliance, packaging or cookware: say what you can see, and say plainly what you can't tell without the model number or manual. Don't assume cookware is stovetop or broiler safe.
+- Use the kitchen notes. If the cook tells you a lasting preference or a lesson from past cooking, offer it in remember (the cook approves before it's saved).`;
+const LIVE_SCHEMA=`Return JSON only:
+{"reply":string,
+"detail":"" or a short explanation of why,
+"changedAdvice":"" or what changed from earlier advice and why,
+"question":"" or one short clarifying question,
+"events":[short past-tense log lines of what happened, e.g. "Pork into the oven at 375°F"],
+"temps":[{"dish":dish title,"f":number}] only for temperatures the cook reported now,
+"dishes":[{"title":existing title, or a new dish's title,"state":short state such as "Prepping","Roasting · glazed","Releasing pressure","Drained · riced, waiting for cream","Holding warm","Ready to serve","Served","targetInternalF":number or null,"remove":true only to drop it,"ingredients":optional full replacement list [{"qty":number or null,"unit":string,"item":string,"note":string,"aisle":string,"fresh":boolean}],"steps":optional full replacement list of strings,"change":"" or one line describing a recipe change}] only dishes that changed,
+"tasks":null if the plan is unchanged, otherwise the full list of remaining tasks for every unserved dish: [{"at":"YYYY-MM-DDTHH:MM" or null,"when":"" or a condition such as "When the pork reaches 145°F","min":minutes,"dish":dish title or "","what":one short imperative line with amounts,"kind":"prep"|"cook"|"check"|"hold"|"serve","active":true if hands-on}],
+"estimate":null if unchanged, otherwise {"from":"YYYY-MM-DDTHH:MM","to":"YYYY-MM-DDTHH:MM","reason":"" or plain-language reason if later than the target},
+"now":{"title":2 to 5 words in capitals,"lines":[up to 3 short lines]},
+"appliances":null if unchanged, otherwise [{"name":string,"status":string}],
+"reminder":null or {"inMin":number,"text":string},
+"remember":[] or lasting notes to offer saving}`;
+
+let sending=false,lastSent={t:"",ms:0};
+async function liveSend(text,images){
+  text=(text||"").trim();
+  if(!text&&!(images&&images.length))return;
+  if(sending)return;
+  if(text===lastSent.t&&Date.now()-lastSent.ms<1e4)return;
+  lastSent={t:text,ms:Date.now()};
+  sending=true;const b=$("sendBtn");b.disabled=true;b.innerHTML='<span class="spin"></span>';
+  L().chat.push({role:"user",text:text||"(photo)",at:localISO()});save();renderCook();
+  /* a bare temperature reading is logged straight away, before Claude answers */
+  const m=text.match(/(\d{2,3})\s*(?:°|degrees|deg|f\b)?/i);
+  if(m&&/\b(is|at|it'?s|reads|reading|temp)\b|°|degrees/i.test(text)){
+    const f=+m[1],r=findDish(text)||activeDishes().find(x=>x.targetTempF&&!/served/i.test(x.state));
+    if(r&&f>=40&&f<=212&&logTemp(r,f)){save();renderCook()}
+  }
+  try{
+    const prompt=`${LIVE_RULES}\n\nMEAL STATE (JSON):\n${JSON.stringify(liveContext())}\n\nTHE COOK SAYS: ${text||"(see photo)"}\n\n${LIVE_SCHEMA}`;
+    const out=await claude.json(prompt,{modelTier:"default",images});
+    applyLive(out);
+  }catch(e){
+    L().chat.push({role:"ai",text:e.code==="rate_limited"?"Too many requests just now. Try again in a minute.":(e.message||"I couldn't reach Claude. Your note is saved; try again."),at:localISO(),err:true});
+  }
+  sending=false;b.disabled=false;b.textContent="Send";save();renderCook();
+}
+
+function applyLive(o){
+  if(!o||typeof o!=="object")throw {message:"Got an unreadable answer. Try again."};
+  const lv=L();
+  for(const t of o.temps||[]){const r=findDish(t.dish);if(r&&isFinite(t.f))logTemp(r,+t.f,true)}
+  for(const d of o.dishes||[]){
+    let r=findDish(d.title);
+    if(!r&&!d.remove&&d.title){
+      r=normMeal({recipes:[{id:uid(),title:d.title,source:"",servings:+S.meal.guests||4,target:+S.meal.guests||4,mode:"dayof",activeMin:0,totalMin:0,ovenTempF:null,ingredients:[],steps:[],makeAhead:"",finish:"",hold:"",added:true}]}).recipes[0];
+      S.recipes.push(r);r.changes.push({at:localISO(),what:"Added during cooking."});
+    }
+    if(!r)continue;
+    if(d.remove){r.removed=true;r.state="Removed";r.changes.push({at:localISO(),what:d.change||"Removed from the meal."});continue}
+    if(!r.original)r.original={ingredients:r.ingredients,steps:r.steps};
+    if(d.state)r.state=d.state;
+    if(d.targetInternalF!==undefined)r.targetTempF=d.targetInternalF;
+    if(Array.isArray(d.ingredients)&&d.ingredients.length){r.ingredients=d.ingredients;r.servings=r.target}
+    if(Array.isArray(d.steps)&&d.steps.length)r.steps=d.steps;
+    if(d.change)r.changes.push({at:localISO(),what:d.change});
+  }
+  for(const e of o.events||[])addEvent(e);
+  if(Array.isArray(o.tasks))lv.tasks=o.tasks.filter(t=>t&&t.what).map(t=>({...t,id:uid(),done:false}));
+  if(o.estimate&&o.estimate.from)lv.estimate=o.estimate;
+  if(o.now&&o.now.title)lv.now=o.now;
+  if(Array.isArray(o.appliances))lv.appliances=o.appliances;
+  if(o.reminder&&o.reminder.inMin>0){lv.reminders=lv.reminders.filter(x=>x.fired);lv.reminders.push({id:uid(),at:Date.now()+o.reminder.inMin*6e4,text:o.reminder.text,fired:false})}
+  for(const n of o.remember||[])if(n&&!DB.prefs.notes.includes(n)&&!lv.suggest.includes(n))lv.suggest.push(n);
+  guardDishes();
+  const say=[o.reply,o.question].filter(Boolean).join(" ");
+  lv.chat.push({role:"ai",text:say||"Got it.",detail:o.detail||"",changed:o.changedAdvice||"",at:localISO()});
+  speak(say);
+}
+/* no unserved dish may drop out of the plan */
+function guardDishes(){
+  const lv=L();lv.tasks=lv.tasks.filter(t=>!t.guard);
+  if(lv.status!=="cooking")return;
+  for(const r of activeDishes()){
+    if(/served|ready to serve/i.test(r.state||""))continue;
+    if(lv.tasks.some(t=>!t.done&&findDish(t.dish)===r))continue;
+    lv.tasks.push({id:uid(),guard:true,at:null,when:"Not in the plan",dish:r.title,what:`Ask Mise where this fits in the plan`,kind:"check"});
+  }
+}
+
+async function startCooking(){
+  if(!S.meal.serveAt){toast("Set a serving time at the top first.");return}
+  if(!S.recipes.length){toast("Add your recipes first.");go("recipes");return}
+  const lv=L();lv.equipment=$("eqIn").value.trim();S.meal.busy=$("busyIn").value.trim();
+  if(lv.equipment)DB.prefs.equipment=lv.equipment;
+  lv.status="cooking";lv.startedAt=localISO();addEvent("Started cooking.");
+  for(const r of activeDishes())r.state=r.state||"Not started";
+  /* carry over the prep plan's tasks that are still ahead, so Claude refines rather than starts over */
+  if(S.plan)lv.tasks=S.plan.tasks.filter(t=>new Date(t.at).getTime()>Date.now()-30*6e4&&!S.checks["t:"+t.at+t.what]).map(t=>({...t,id:uid(),done:false}));
+  if("Notification" in window&&Notification.permission==="default")Notification.requestPermission().catch(()=>{});
+  save();render();
+  await liveSend("I'm starting to cook now. Build the full live plan from here to serving: tasks, appliance use, the estimate, and what to do first.");
+}
+function finishMeal(){
+  const lv=L();lv.status="done";S.done=true;lv.actual=localISO();
+  for(const r of activeDishes())if(!/served/i.test(r.state))r.state="Served";
+  addEvent("Dinner served.");lv.reminders=[];save();render();
+}
+function cookAgain(){
+  const m=JSON.parse(JSON.stringify(S));
+  m.id=uid();delete m.done;m.meal.serveAt="";m.plan=null;m.checks={};
+  m.live={status:"idle",events:[],tasks:[],chat:[],reminders:[],appliances:[],suggest:[],equipment:S.live.equipment||""};
+  m.recipes=m.recipes.filter(r=>!r.removed).map(r=>({...r,id:uid(),state:"",temps:[],changes:[],original:null}));
+  normMeal(m);DB.meals.push(m);openMeal(m);
+  setTimeout(()=>{const el=$("mealName");el.focus();el.select()},50);
+}
+
+/* reminders, sound, speech */
+let actx=null;
+function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;g.gain.setValueAtTime(.2,actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+.6);o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+.6)}catch(e){}}
+function speak(t){if(!DB.prefs.speak||!t||!("speechSynthesis" in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.02;speechSynthesis.speak(u)}catch(e){}}
+let toastT=null;
+function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,6000)}
+function checkReminders(){
+  for(const m of DB.meals){const lv=m.live;if(!lv||lv.status!=="cooking")continue;
+    for(const r of lv.reminders)if(!r.fired&&r.at<=Date.now()){
+      r.fired=true;beep();toast(r.text);speak(r.text);
+      try{if("Notification" in window&&Notification.permission==="granted")new Notification("Mise",{body:r.text})}catch(e){}
+      save();if(m===S&&view==="cook")renderCook();
+    }}
+}
+setInterval(checkReminders,15000);
+
+/* voice input */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null;
+function toggleMic(){
+  if(!SR){toast("Voice input isn't supported in this browser. Try Chrome or Safari.");return}
+  if(rec){rec.stop();return}
+  rec=new SR();rec.lang="en-US";rec.interimResults=true;rec.continuous=false;
+  $("mic").classList.add("on");
+  rec.onresult=e=>{const r=[...e.results].map(x=>x[0].transcript).join("");$("say").value=r;if(e.results[e.results.length-1].isFinal){const t=r;$("say").value="";liveSend(t)}};
+  rec.onend=rec.onerror=()=>{rec=null;$("mic").classList.remove("on")};
+  try{rec.start()}catch(e){rec=null;$("mic").classList.remove("on")}
+}
+
+/* ---------- Cook tab ---------- */
+function renderCook(){
+  const lv=L(),el=$("cookBody");
+  const cooking=lv.status==="cooking";
+  document.body.classList.toggle("cooking",cooking&&view==="cook");
+  $("cmd").hidden=!(cooking&&view==="cook");
+  if(lv.status==="idle"){
+    el.innerHTML=`<div class="adder setup">
+      <h2 style="font-size:24px">Live cooking</h2>
+      <p class="hint">Start when you begin cooking. Then just tell Mise what's happening ("pork's in", "it's 120", "the beans are moldy") and it keeps every dish, timer and appliance in step, and moves the dinner estimate if something runs slow.</p>
+      <label>Your equipment<input id="eqIn" value="${esc(lv.equipment||DB.prefs.equipment||"")}" placeholder="Oven (convection), Instant Pot, air fryer, stovetop, thermometer"></label>
+      <label>When you're not available<input id="busyIn" value="${esc(S.meal.busy||"")}" placeholder="Swim lesson 10–11, nap 1–3"></label>
+      <div class="row"><button data-act="startcook">Start cooking</button><span class="hint" style="margin:0">${S.meal.serveAt?"Serving "+new Date(S.meal.serveAt).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"}):"Set a serving time first"}</span></div>
+    </div>`;
+    return;
+  }
+  const target=S.meal.serveAt?new Date(S.meal.serveAt):null,est=lv.estimate;
+  const late=est&&target&&new Date(est.from)-target>5*6e4;
+  const fmtWin=e=>{if(!e)return "Working it out";const a=clock(e.from),b=clock(e.to);return a===b?a:`${a.replace(/ [AP]M/,"")}–${b}`};
+  const done=lv.status==="done";
+  /* temperature checks */
+  const tdishes=activeDishes().filter(r=>r.targetTempF&&!/served/i.test(r.state));
+  const temps=done?"":tdishes.map(r=>{const e=tempETA(r);const last=r.temps[r.temps.length-1];
+    return `<div class="trow"><span><b>${esc(r.title)}</b><br><span class="hint">${last?last.f+"°F":"No reading yet"} → ${r.targetTempF}°F</span></span>
+      <form data-temp="${r.id}"><input type="number" inputmode="numeric" min="40" max="212" placeholder="°F" aria-label="Temperature for ${esc(r.title)}"><button>Log</button></form>
+      <span class="eta">${!e?"Log a reading to start tracking.":e.reached?"At target. Pull it and rest it.":e.lo?`About ${e.lo}–${e.hi} min to ${r.targetTempF}°F at the current rate (estimate; keep checking).`:"Log another reading in a few minutes to estimate the rate."}</span></div>`}).join("");
+  const nextRem=lv.reminders.filter(r=>!r.fired).sort((a,b)=>a.at-b.at)[0];
+  const upcoming=lv.tasks.filter(t=>!t.done).sort((a,b)=>(a.at?0:1)-(b.at?0:1)||String(a.at).localeCompare(String(b.at)));
+  el.innerHTML=`
+    ${done?`<div class="stale" style="background:var(--fresh)">Cooked${lv.actual?" · served "+clock(lv.actual):""}. <button class="ghost" data-act="again" style="margin-left:8px">Cook again</button></div>`:""}
+    <div class="times">
+      <div class="tbox"><small>${late||done?"Original dinner target":"Dinner target"}</small><b>${late?`<s>${clock(S.meal.serveAt)||clock(lv.target)}</s>`:(clock(S.meal.serveAt)||clock(lv.target)||"Not set")}</b></div>
+      <div class="tbox ${late?"late":""}"><small>${done?"Served":"Estimated dinner"}</small><b>${done?(lv.actual&&/T/.test(lv.actual)?clock(lv.actual):esc(lv.actual||"")):fmtWin(est)}</b></div>
+    </div>
+    ${est&&est.reason&&!done?`<p class="reason">${esc(est.reason)}</p>`:""}
+    ${!done?`<div class="nowcard"><small>DO THIS NOW</small><h2>${esc(lv.now?.title||(sending?"One moment…":"Tell Mise what's happening"))}</h2>${(lv.now?.lines||[]).map(l=>`<p>${esc(l)}</p>`).join("")}
+      ${nextRem?`<p class="nxt">Next: ${esc(nextRem.text)} · in ${Math.max(0,Math.round((nextRem.at-Date.now())/6e4))} min</p>`:""}</div>`:""}
+    ${lv.suggest.length?lv.suggest.map((n,i)=>`<div class="suggest"><span>Remember for next time? “${esc(n)}”</span><span><button class="ghost" data-sug="${i}" data-keep="1">Save</button> <button class="rm" data-sug="${i}">No</button></span></div>`).join(""):""}
+    ${temps?`<div class="sec">Temperatures</div>${temps}`:""}
+    <div class="sec">Your meal</div>
+    ${S.recipes.map(r=>{const k=scale(r);return `<details class="drow"><summary><span><b>${esc(r.title)}</b>${r.changes.length?` <span class="chip mod">changed</span>`:""}</span><span class="chip ${r.removed?"gone":""}">${esc(r.removed?"Removed":(r.state||"Not started"))}</span></summary><div class="body">
+      ${r.ingredients.length?`<h4>Ingredients</h4><ul>${r.ingredients.map(i=>`<li>${i.qty!=null?`<b>${fq(i.qty*k)}${i.unit?" "+esc(i.unit):""}</b> `:""}${esc(i.item)}${i.note?", "+esc(i.note):""}</li>`).join("")}</ul>`:""}
+      ${r.steps.length?`<h4>Steps</h4><ol>${r.steps.map(s=>`<li>${stepHTML(r,s,k)}</li>`).join("")}</ol>`:""}
+      ${r.changes.length?`<h4>Changes</h4><ul>${r.changes.map(c=>`<li>${c.at?clock(c.at)+" · ":""}${esc(c.what)}</li>`).join("")}</ul>`:""}
+      ${r.temps.length?`<h4>Temperatures</h4><p class="temps-log">${r.temps.map(t=>`${t.at?clock(t.at)+" ":""}${t.f}°F`).join(" → ")}</p>`:""}
+    </div></details>`}).join("")}
+    ${!done?`<div class="sec">Up next</div>${upcoming.length?upcoming.map(t=>`<label class="up ${t.guard?"warn":""}"><span>${t.at?`<span class="tm">${clock(t.at)}</span>`:`<span class="cond">${esc(t.when||"When ready")}</span>`}</span>
+      <span>${esc(t.what)}<span class="rc hint" style="display:block;margin:0">${esc(t.dish||"")}${t.min?" · "+mins(t.min):""}${t.active===false?" · hands-off":""}</span></span>
+      ${t.guard?"":`<input type="checkbox" data-task="${t.id}" aria-label="Done">`}</label>`).join(""):`<p class="hint">No tasks yet.</p>`}`:""}
+    ${lv.appliances.length&&!done?`<div class="sec">Appliances</div>${lv.appliances.map(a=>`<div class="app"><b>${esc(a.name)}</b><span>${esc(a.status)}</span></div>`).join("")}`:""}
+    ${lv.chat.length?`<div class="sec">Conversation</div><div class="chat">${lv.chat.slice(-12).map(c=>`<div class="msg ${c.role}">${esc(c.text)}${c.changed?`<span class="chg">Changed: ${esc(c.changed)}</span>`:""}${c.detail?`<details><summary>Why</summary>${esc(c.detail)}</details>`:""}</div>`).join("")}</div>`:""}
+    <div class="sec">What happened</div>
+    <ul class="temps-log" style="padding-left:18px">${lv.events.map(e=>`<li>${e.at?clock(e.at)+" · ":""}${esc(e.text)}</li>`).join("")}</ul>
+    ${done?`<div class="sec">Notes for next time</div><div class="setup">
+      <label>What worked<textarea data-refl="worked" rows="3">${esc(lv.reflection?.worked||"")}</textarea></label>
+      <label>What to change<textarea data-refl="change" rows="3">${esc(lv.reflection?.change||"")}</textarea></label></div>`
+     :`<div class="row" style="margin-top:22px"><label class="hint" style="display:flex;gap:8px;align-items:center;margin:0"><input type="checkbox" data-act="speak" ${DB.prefs.speak?"checked":""} style="width:22px;height:22px"> Read replies aloud</label>
+       <button class="ghost" data-act="finish">Dinner's served</button></div>`}`;
+}
+
+/* kitchen notes on the home screen */
+function renderNotes(){
+  $("notesEd").innerHTML=`<ul>${DB.prefs.notes.map((n,i)=>`<li><span contenteditable="true" data-note="${i}">${esc(n)}</span><button class="rm" data-delnote="${i}">Delete</button></li>`).join("")}</ul>
+    <form id="addNote" class="row"><input id="noteIn" placeholder="Add a note, e.g. My oven runs 15°F hot" style="flex:1;font:16px 'Public Sans';padding:10px;border-radius:10px;border:1px solid var(--line);min-height:44px"><button>Add</button></form>`;
+}
+
 /* ---------- events ---------- */
 document.addEventListener("click",e=>{
   const a=e.target.closest("[data-act]");if(!a)return;
@@ -506,6 +934,9 @@ document.addEventListener("click",e=>{
   else if(act==="rm"&&r){S.recipes=S.recipes.filter(x=>x!==r);save();render()}
   else if(act==="clear"){swapMeal(blankMeal());save();render();$("mealName").focus()}
   else if(act==="plan")buildPlan();
+  else if(act==="startcook")startCooking();
+  else if(act==="finish"){if(confirm("Mark dinner as served and close live cooking?"))finishMeal()}
+  else if(act==="again")cookAgain();
   else if(act==="newmeal"){const m=blankMeal();DB.meals.push(m);openMeal(m);setTimeout(()=>$("mealName").focus(),50)}
   else if(act==="delmeal"){
     const named=(S.meal.name||"").trim();
@@ -513,9 +944,32 @@ document.addEventListener("click",e=>{
     DB.meals=DB.meals.filter(m=>m!==S);S=null;DB.cur=null;save();go("meals");
   }
 });
+document.addEventListener("click",e=>{
+  const s=e.target.closest("[data-sug]");
+  if(s){const lv=S.live,n=lv.suggest[+s.dataset.sug];if(s.dataset.keep&&n&&!DB.prefs.notes.includes(n))DB.prefs.notes.push(n);lv.suggest.splice(+s.dataset.sug,1);save();renderCook();return}
+  const d=e.target.closest("[data-delnote]");
+  if(d){DB.prefs.notes.splice(+d.dataset.delnote,1);save();renderNotes()}
+});
+document.addEventListener("submit",e=>{
+  e.preventDefault();
+  if(e.target.id==="addNote"){const v=$("noteIn").value.trim();if(v){DB.prefs.notes.push(v);save();renderNotes();$("noteIn").focus()}return}
+  const id=e.target.dataset.temp;if(!id)return;
+  const r=S.recipes.find(x=>x.id===id),inp=e.target.querySelector("input"),f=+inp.value;
+  if(!r||!(f>=40&&f<=212))return;
+  inp.value="";logTemp(r,f);save();renderCook();
+  liveSend(`${r.title} is ${f}°F`);
+});
+document.addEventListener("focusout",e=>{const n=e.target.dataset&&e.target.dataset.note;if(n===undefined)return;const v=e.target.textContent.trim();if(v)DB.prefs.notes[+n]=v;else DB.prefs.notes.splice(+n,1);save();renderNotes()});
+document.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.refl;if(!k)return;S.live.reflection=S.live.reflection||{};S.live.reflection[k]=e.target.value;save()});
+$("sendBtn").addEventListener("click",()=>{const t=$("say").value;$("say").value="";liveSend(t)});
+$("say").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("sendBtn").click()}});
+$("mic").addEventListener("click",toggleMic);
+$("cmdPhoto").addEventListener("change",async()=>{const f=[...$("cmdPhoto").files];$("cmdPhoto").value="";if(!f.length)return;const t=$("say").value;$("say").value="";liveSend(t||"What can you tell from this photo, for what I'm cooking right now?",f)});
 document.addEventListener("click",e=>{const c=e.target.closest("[data-open]");if(!c)return;const m=DB.meals.find(x=>x.id===c.dataset.open);if(m)openMeal(m)});
 document.addEventListener("change",e=>{
   const t=e.target;
+  if(t.dataset.act==="speak"){DB.prefs.speak=t.checked;save();if(t.checked)speak("I'll read replies aloud.");return}
+  if(t.dataset.task){const k=S.live.tasks.find(x=>x.id===t.dataset.task);if(k){k.done=true;addEvent("Done: "+k.what,k.dish);guardDishes();save();setTimeout(renderCook,250)}return}
   if(t.dataset.ck){S.checks[t.dataset.ck]=t.checked;if(!t.checked)delete S.checks[t.dataset.ck];save();render();return}
   if(t.dataset.act==="target"){const r=S.recipes.find(x=>x.id===t.closest(".ticket").dataset.id);if(r){r.target=Math.max(1,+t.value||r.servings);save();render()}return}
   if(t.id==="serveAt"||t.id==="guests"||t.id==="ovens"){S.meal[t.id]=t.id==="serveAt"?t.value:+t.value;save();render()}
