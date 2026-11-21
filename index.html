@@ -11,11 +11,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:light dark;
---bg:light-dark(#ffffff,#161514);--panel:light-dark(#f6f3ef,#211f1d);--line:light-dark(#e4ddd4,#36322e);
---ink:light-dark(#1d1a17,#f3efe9);--mute:light-dark(#6b635b,#a9a097);
---tom:#c8391f;--tomInk:#fff;--herb:light-dark(#2f6b4f,#6fbf93);--saf:#f2b33d;--fresh:light-dark(#e6f2ea,#1f3328)}
-:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+:root{color-scheme:light;
+--bg:#ffffff;--panel:#f6f3ef;--line:#e4ddd4;--ink:#1d1a17;--mute:#6b635b;
+--tom:#c8391f;--tomInk:#fff;--herb:#2f6b4f;--saf:#f2b33d;--fresh:#e6f2ea;--warn:#fff4dc}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Public Sans",system-ui,sans-serif;overflow-x:clip}
 h1,h2,h3{font-family:Archivo,system-ui,sans-serif;line-height:1.1;margin:0;text-wrap:balance}
@@ -99,16 +97,41 @@ summary{padding:12px 16px;cursor:pointer;font-weight:600;font-size:15px;min-heig
 .task.next{box-shadow:inset 4px 0 0 var(--saf);padding-left:10px}
 .tips{background:var(--panel);border-radius:14px;padding:14px 16px;margin-top:24px}
 .tips h3{font-size:17px;margin-bottom:6px}.tips ul{margin:0;padding-left:20px}.tips li{margin:4px 0;font-size:15px}
-.stale{background:light-dark(#fff4dc,#3a2f14);border-radius:12px;padding:10px 14px;font-size:14px;margin-bottom:12px}
+.stale{background:var(--warn);border-radius:12px;padding:10px 14px;font-size:14px;margin-bottom:12px}
 .summary{font-size:16px;margin:4px 0 0}
 .spin{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .8s linear infinite}
 @keyframes sp{to{transform:rotate(1turn)}}
 @media(prefers-reduced-motion:reduce){.spin{animation:none}}
+/* home: meal cards */
+#home{padding-top:28px;padding-bottom:60px}
+.brand{font:800 34px/1 Archivo,sans-serif;color:var(--tom);margin:0 0 4px}
+.tag{color:var(--mute);margin:0 0 22px}
+.meals{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.mcard{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;min-height:118px;padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;cursor:pointer;position:relative;overflow:hidden}
+.mcard::before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--tom)}
+.mcard:hover{border-color:var(--tom)}
+.mcard b{font:800 19px/1.15 Archivo,sans-serif}
+.mcard span{font-size:14px;color:var(--mute)}
+.mcard .soon{color:var(--tom);font-weight:600}
+.mcard.past::before{background:var(--line)}
+.mcard.new{align-items:center;justify-content:center;border-style:dashed;color:var(--mute);font:700 16px Archivo,sans-serif}
+.mcard.new::before{display:none}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.topbar a,.topbar button{display:inline-flex;align-items:center;color:#fff;opacity:.9;font:600 14px "Public Sans",sans-serif;text-decoration:none;background:none;border:0;padding:0;min-height:32px;cursor:pointer}
+.topbar a:hover,.topbar button:hover{opacity:1;text-decoration:underline}
+body.home header,body.home nav,body.home main{display:none}
+body:not(.home) #home{display:none}
 @media(max-width:600px){.settings{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.settings label:first-child{grid-column:1/-1}.task{grid-template-columns:4.4em minmax(0,1fr) auto;gap:10px}.task .tm{font-size:17px}}
 </style>
 </head>
 <body>
+<section id="home" class="wrap">
+  <h1 class="brand">Mise</h1>
+  <p class="tag">Your planned meals</p>
+  <div class="meals" id="mealCards"></div>
+</section>
 <header><div class="wrap">
+  <div class="topbar"><a href="#meals">← All meals</a><button data-act="delmeal">Delete meal</button></div>
   <input class="mealname" id="mealName" aria-label="Meal name" value="">
   <div class="settings">
     <label>Serving at<input type="datetime-local" id="serveAt"></label>
@@ -188,15 +211,34 @@ tasks:[
 {at:"2026-11-26T16:00",min:0,recipe:"",what:"Serve",kind:"serve"}],
 tips:["One oven: the turkey and potatoes overlap at 350°F, so put the potatoes on the lower rack.","The turkey's 30-minute rest is your buffer. If you're running late, it can rest up to 45 min."]}};
 
-let S=load()||JSON.parse(JSON.stringify(SAMPLE));
-if(S.sample)S=JSON.parse(JSON.stringify(SAMPLE));
-let view=(location.hash||"#recipes").slice(1);
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9);
+const VIEWS=["meals","recipes","shopping","prep"];
+const blankMeal=()=>({id:uid(),meal:{name:"",serveAt:"",guests:"",ovens:1},recipes:[],plan:null,checks:{}});
+const sampleMeal=()=>({...JSON.parse(JSON.stringify(SAMPLE)),id:"sample"});
 
-function load(){try{const t=localStorage.getItem("mise-state");return t?JSON.parse(t):null}catch(e){return null}}
-function save(){try{localStorage.setItem("mise-state",JSON.stringify(S))}catch(e){}}
+/* every meal lives in DB.meals; S is the meal that's open */
+let DB=load();
+let S=DB.meals.find(m=>m.id===DB.cur)||null;
+let view=(location.hash||"").slice(1);
+if(!VIEWS.includes(view)||(!S&&view!=="meals"))view="meals";
+
+function load(){
+  try{
+    const t=localStorage.getItem("mise-meals");if(t)return JSON.parse(t);
+    const old=localStorage.getItem("mise-state");   /* carry over a meal saved by the single-meal version */
+    if(old){const m=JSON.parse(old);if(!m.sample&&(m.recipes||[]).length)return {meals:[{...m,id:uid()}],cur:null}}
+  }catch(e){}
+  return {meals:[sampleMeal()],cur:null};
+}
+function save(){try{localStorage.setItem("mise-meals",JSON.stringify(DB))}catch(e){}}
+function openMeal(m){S=m;DB.cur=m.id;save();go("recipes")}
+function go(v){if(location.hash==="#"+v){view=v;render()}else location.hash=v}
+/* replace the open meal (used when leaving the sample) */
+function swapMeal(m){const i=DB.meals.indexOf(S);if(i>=0)DB.meals[i]=m;else DB.meals.push(m);S=m;DB.cur=m.id}
+/* drop meals that were started but never named or filled */
+function prune(){DB.meals=DB.meals.filter(m=>m===S&&view!=="meals"||m.sample||(m.meal.name||"").trim()||m.recipes.length)}
 function sig(){return JSON.stringify([S.meal,S.recipes.map(r=>[r.id,r.mode,r.target])])}
 
 /* ---------- Claude, via this site's /api/claude function ---------- */
@@ -248,7 +290,23 @@ function fq(n){
 const scale=r=>(r.target&&r.servings)?r.target/r.servings:1;
 
 /* ---------- render ---------- */
+function renderHome(){
+  prune();save();
+  const now=Date.now();
+  const ts=m=>m.meal.serveAt?new Date(m.meal.serveAt).getTime():Infinity;
+  /* upcoming meals first (soonest first), then past meals (most recent first) */
+  const list=DB.meals.filter(m=>(m.meal.name||"").trim()||m.recipes.length).sort((a,b)=>{
+    const pa=ts(a)<now,pb=ts(b)<now;if(pa!==pb)return pa?1:-1;return pa?ts(b)-ts(a):ts(a)-ts(b)});
+  $("mealCards").innerHTML=list.map(m=>{
+    const t=ts(m),past=t<now,day0=x=>new Date(x).setHours(0,0,0,0),days=Math.round((day0(t)-day0(now))/864e5);
+    const date=m.meal.serveAt?new Date(m.meal.serveAt).toLocaleDateString([], {weekday:"short",month:"short",day:"numeric",year:"numeric"}):"No date yet";
+    const when=t===Infinity?"":past?"":days<=1?`<span class="soon">${days<=0?"Today":"Tomorrow"}</span>`:days<=14?`<span class="soon">In ${days} days</span>`:"";
+    return `<button class="mcard${past?" past":""}" data-open="${esc(m.id)}"><b>${esc(m.meal.name||"Untitled meal")}</b><span>${date}</span><span>${m.recipes.length} recipe${m.recipes.length===1?"":"s"}${m.sample?" · sample":""}</span>${when}</button>`;
+  }).join("")+`<button class="mcard new" data-act="newmeal">+ New meal</button>`;
+}
 function render(){
+  document.body.classList.toggle("home",view==="meals");
+  if(view==="meals"){renderHome();return}
   $("mealName").value=S.meal.name||"";
   $("serveAt").value=S.meal.serveAt||"";
   $("guests").value=S.meal.guests||"";
@@ -403,7 +461,7 @@ async function addRecipes(){
     const out=await claude.json(EXTRACT+"\n\nINPUT:\n"+(txt||"(see attached photos)"),opts);
     if(out&&out.error==="need_text")throw {message:"That site wouldn't let Mise read the recipe. Open it, copy the page text and paste it here."};
     const rs=(out&&out.recipes)||[];if(!rs.length)throw {message:"No recipe found in that. Try pasting the full text."};
-    if(S.sample){S={meal:{...S.meal,name:"",serveAt:"",guests:S.meal.guests},recipes:[],plan:null,checks:{}}}
+    if(S.sample){const m=blankMeal();m.meal.guests=S.meal.guests;swapMeal(m)}
     for(const r of rs){S.recipes.push({id:uid(),title:r.title||"Untitled recipe",source:r.source||(urls.length===1?urls[0]:""),
       servings:+r.servings||+S.meal.guests||4,target:+S.meal.guests||+r.servings||4,mode:"dayof",activeMin:+r.activeMin||0,totalMin:+r.totalMin||0,ovenTempF:r.ovenTempF||null,
       ingredients:Array.isArray(r.ingredients)?r.ingredients:[],steps:Array.isArray(r.steps)?r.steps:[],makeAhead:r.makeAhead||"",finish:r.finish||"",hold:r.hold||""})}
@@ -446,9 +504,16 @@ document.addEventListener("click",e=>{
   const act=a.dataset.act,card=a.closest(".ticket"),r=card&&S.recipes.find(x=>x.id===card.dataset.id);
   if(act==="mode"&&r){r.mode=a.dataset.m;S.sample=false;save();render()}
   else if(act==="rm"&&r){S.recipes=S.recipes.filter(x=>x!==r);save();render()}
-  else if(act==="clear"){S={meal:{name:"",serveAt:"",guests:"",ovens:1},recipes:[],plan:null,checks:{}};save();render();$("mealName").focus()}
+  else if(act==="clear"){swapMeal(blankMeal());save();render();$("mealName").focus()}
   else if(act==="plan")buildPlan();
+  else if(act==="newmeal"){const m=blankMeal();DB.meals.push(m);openMeal(m);setTimeout(()=>$("mealName").focus(),50)}
+  else if(act==="delmeal"){
+    const named=(S.meal.name||"").trim();
+    if((named||S.recipes.length)&&!S.sample&&!confirm(`Delete "${named||"this meal"}"? This can't be undone.`))return;
+    DB.meals=DB.meals.filter(m=>m!==S);S=null;DB.cur=null;save();go("meals");
+  }
 });
+document.addEventListener("click",e=>{const c=e.target.closest("[data-open]");if(!c)return;const m=DB.meals.find(x=>x.id===c.dataset.open);if(m)openMeal(m)});
 document.addEventListener("change",e=>{
   const t=e.target;
   if(t.dataset.ck){S.checks[t.dataset.ck]=t.checked;if(!t.checked)delete S.checks[t.dataset.ck];save();render();return}
@@ -465,9 +530,8 @@ $("copyShop").addEventListener("click",async()=>{
   try{await navigator.clipboard.writeText(txt);$("copyShop").textContent="Copied"}catch(err){$("copyShop").textContent="Couldn't copy"}
   setTimeout(()=>$("copyShop").textContent="Copy list",1600);
 });
-window.addEventListener("hashchange",()=>{view=(location.hash||"#recipes").slice(1);if(!["recipes","shopping","prep"].includes(view))view="recipes";render();scrollTo(0,0)});
-if(!["recipes","shopping","prep"].includes(view))view="recipes";
-setInterval(()=>{countdown();if(view==="prep")renderPlan()},60000);
+window.addEventListener("hashchange",()=>{view=(location.hash||"").slice(1);if(!VIEWS.includes(view)||(!S&&view!=="meals"))view="meals";render();scrollTo(0,0)});
+setInterval(()=>{if(view==="meals")renderHome();else{countdown();if(view==="prep")renderPlan()}},60000);
 render();
 }
 </script>
