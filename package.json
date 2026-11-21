@@ -1,0 +1,6 @@
+{
+  "name": "mise",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" }
+}

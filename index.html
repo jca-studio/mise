@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mise: meal planner</title>
+<meta name="theme-color" content="#c8391f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mise">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23c8391f'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>M</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#161514);--panel:light-dark(#f6f3ef,#211f1d);--line:light-dark(#e4ddd4,#36322e);
+--ink:light-dark(#1d1a17,#f3efe9);--mute:light-dark(#6b635b,#a9a097);
+--tom:#c8391f;--tomInk:#fff;--herb:light-dark(#2f6b4f,#6fbf93);--saf:#f2b33d;--fresh:light-dark(#e6f2ea,#1f3328)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Public Sans",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:Archivo,system-ui,sans-serif;line-height:1.1;margin:0;text-wrap:balance}
+.wrap{max-width:760px;margin:0 auto;padding:0 max(4vw,16px)}
+header{background:var(--tom);color:var(--tomInk);padding:22px 0 18px}
+.mealname{font:800 clamp(28px,6vw,42px)/1.05 Archivo,sans-serif;background:none;border:0;color:inherit;width:100%;padding:4px 0;border-bottom:2px solid transparent}
+.mealname:focus{outline:none;border-bottom-color:var(--saf)}
+.mealname::placeholder{color:rgba(255,255,255,.7)}
+.settings{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:14px}
+.settings label{font-size:13px;font-weight:600;display:grid;gap:4px;opacity:.95}
+.settings input{font:16px "Public Sans",sans-serif;padding:10px;border-radius:10px;border:0;background:rgba(255,255,255,.18);color:#fff;min-height:44px;width:100%}
+.settings input::-webkit-calendar-picker-indicator{filter:invert(1)}
+.countdown{margin-top:12px;font-weight:600;font-size:15px}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:4px}
+nav a{flex:1;text-align:center;padding:14px 6px;color:var(--mute);text-decoration:none;font:700 15px Archivo,sans-serif;border-bottom:3px solid transparent}
+nav a.on{color:var(--ink);border-bottom-color:var(--tom)}
+nav a small{font:600 12px "Public Sans";background:var(--panel);border-radius:99px;padding:1px 7px;margin-left:4px}
+main{padding:20px 0 60px}
+.view{display:none}.view.on{display:block}
+.adder{background:var(--panel);border-radius:16px;padding:16px;margin-bottom:22px}
+textarea{width:100%;min-height:110px;font:16px/1.45 "Public Sans",sans-serif;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+button,.btn{font:700 15px Archivo,sans-serif;min-height:44px;padding:0 18px;border-radius:12px;border:0;background:var(--tom);color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+button.ghost,.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button:disabled{opacity:.5;cursor:wait}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--saf);outline-offset:2px}
+input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
+.status{font-size:14px;color:var(--mute);margin-top:8px;min-height:1.4em}
+.status.err{color:var(--tom)}
+.hint{font-size:14px;color:var(--mute);margin:6px 0 0}
+.sample{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;color:var(--mute);border:1px dashed var(--line);border-radius:12px;padding:8px 12px;margin-bottom:16px}
+.sample button{min-height:36px;font-size:13px;padding:0 12px}
+.ticket{border:1px solid var(--line);border-radius:16px;margin-bottom:14px;background:var(--bg);overflow:hidden}
+.ticket .top{padding:14px 16px;display:grid;gap:10px}
+.ticket h3{font-size:20px}
+.meta{font-size:14px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 14px}
+.meta a{color:var(--mute)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{background:none;color:var(--ink);border-radius:0;font-size:14px;padding:0 14px}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ctl label{font-size:14px;display:flex;align-items:center;gap:6px}
+.ctl input[type=number]{width:72px;font:16px "Public Sans";padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-height:44px}
+.ahead{font-size:14px;color:var(--mute);margin:0}
+details{border-top:1px solid var(--line)}
+summary{padding:12px 16px;cursor:pointer;font-weight:600;font-size:15px;min-height:44px}
+.body{padding:0 16px 16px}
+.body h4{font:700 14px Archivo,sans-serif;margin:14px 0 6px}
+.body ul,.body ol{margin:0;padding-left:22px}.body li{margin:4px 0}
+.body ol li{margin:8px 0}
+.amt{font-weight:700;white-space:nowrap;color:var(--herb)}
+.notes{display:grid;gap:8px;margin-top:12px}
+.notes p{margin:0;font-size:14px;background:var(--panel);border-radius:10px;padding:8px 12px}
+.notes b{font-family:Archivo}
+.rm{background:none;color:var(--mute);font-size:13px;padding:0 4px;min-height:36px}
+.empty{text-align:center;color:var(--mute);padding:30px 10px}
+.listhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:8px 0 4px}
+.listhead h2{font-size:24px}
+.when{font-size:14px;color:var(--mute);margin:0 0 10px}
+.aisle{font:700 13px Archivo,sans-serif;color:var(--mute);margin:16px 0 4px}
+.item{display:flex;gap:12px;align-items:flex-start;padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.item input{width:22px;height:22px;margin:2px 0 0;accent-color:var(--herb);flex:none}
+.item .q{font-weight:600;white-space:nowrap}
+.item .for{display:block;font-size:13px;color:var(--mute)}
+.item.done .t{text-decoration:line-through;color:var(--mute)}
+.freshtag{font-size:12px;font-weight:600;color:var(--herb);background:var(--fresh);border-radius:99px;padding:1px 8px;margin-left:6px;white-space:nowrap}
+.section{margin-bottom:30px}
+.day{margin:26px 0 8px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:2px solid var(--ink);padding-bottom:6px}
+.day h3{font-size:21px}.day span{font-size:14px;color:var(--mute);white-space:nowrap}
+.task{display:grid;grid-template-columns:5.2em minmax(0,1fr) auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:start}
+.task .tm{font:800 19px/1.2 Archivo,sans-serif;white-space:nowrap}
+.task .what{font-size:16px}
+.task .rc{display:block;font-size:13px;color:var(--mute)}
+.task .dur{font-size:13px;color:var(--mute);white-space:nowrap}
+.task input{width:22px;height:22px;accent-color:var(--herb);margin-top:2px}
+.task.done .what{text-decoration:line-through;color:var(--mute)}
+.task.kind-serve .tm{color:var(--tom)}
+.task.kind-hold{background:linear-gradient(90deg,var(--fresh),transparent 70%)}
+.task.kind-shop .tm{color:var(--herb)}
+.task.next{box-shadow:inset 4px 0 0 var(--saf);padding-left:10px}
+.tips{background:var(--panel);border-radius:14px;padding:14px 16px;margin-top:24px}
+.tips h3{font-size:17px;margin-bottom:6px}.tips ul{margin:0;padding-left:20px}.tips li{margin:4px 0;font-size:15px}
+.stale{background:light-dark(#fff4dc,#3a2f14);border-radius:12px;padding:10px 14px;font-size:14px;margin-bottom:12px}
+.summary{font-size:16px;margin:4px 0 0}
+.spin{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(1turn)}}
+@media(prefers-reduced-motion:reduce){.spin{animation:none}}
+@media(max-width:600px){.settings{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.settings label:first-child{grid-column:1/-1}.task{grid-template-columns:4.4em minmax(0,1fr) auto;gap:10px}.task .tm{font-size:17px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <input class="mealname" id="mealName" aria-label="Meal name" value="">
+  <div class="settings">
+    <label>Serving at<input type="datetime-local" id="serveAt"></label>
+    <label>Guests<input type="number" id="guests" min="1" max="60"></label>
+    <label>Ovens<input type="number" id="ovens" min="1" max="4"></label>
+  </div>
+  <div class="countdown" id="countdown"></div>
+</div></header>
+<nav><div class="wrap">
+  <a href="#recipes" data-v="recipes">Recipes<small id="nR">0</small></a>
+  <a href="#shopping" data-v="shopping">Shopping<small id="nS">0</small></a>
+  <a href="#prep" data-v="prep">Prep plan</a>
+</div></nav>
+<main class="wrap">
+  <div id="sampleBar"></div>
+
+  <section class="view" id="v-recipes">
+    <div class="adder">
+      <textarea id="src" placeholder="Paste a recipe link (or several, one per line), the recipe text, or recipes straight from your notes app"></textarea>
+      <div class="row">
+        <button id="addBtn">Add recipe</button>
+        <label class="btn ghost" for="photo">Photo of a card</label>
+        <input type="file" id="photo" accept="image/*" multiple>
+      </div>
+      <div class="status" id="addStatus"></div>
+      <p class="hint">Mise opens links for you. If a site blocks it, open the recipe, copy the page text and paste it here.</p>
+    </div>
+    <div id="recipeList"></div>
+  </section>
+
+  <section class="view" id="v-shopping">
+    <div class="row" style="margin-top:0;justify-content:space-between">
+      <span class="hint" id="shopHint" style="margin:0"></span>
+      <button class="ghost" id="copyShop">Copy list</button>
+    </div>
+    <div id="shopList"></div>
+  </section>
+
+  <section class="view" id="v-prep">
+    <div id="planTop"></div>
+    <div id="planList"></div>
+  </section>
+</main>
+
+<script>
+{
+const AISLES=["produce","meat & seafood","dairy & eggs","bakery","pantry","spices","frozen","other"];
+const SAMPLE={meal:{name:"Thanksgiving dinner",serveAt:"2026-11-26T16:00",guests:8,ovens:1},sample:true,checks:{},
+recipes:[
+{id:"r1",title:"Dry-brined herb turkey breast",source:"",servings:6,target:8,mode:"dayof",activeMin:25,totalMin:150,ovenTempF:425,
+ingredients:[{qty:2,unit:"",item:"bone-in turkey breast",note:"about 6 lb each",aisle:"meat & seafood",fresh:false},{qty:3,unit:"tbsp",item:"kosher salt",note:"",aisle:"spices",fresh:false},{qty:6,unit:"tbsp",item:"butter",note:"softened",aisle:"dairy & eggs",fresh:false},{qty:1,unit:"bunch",item:"fresh sage",note:"chopped",aisle:"produce",fresh:true},{qty:1,unit:"bunch",item:"fresh thyme",note:"",aisle:"produce",fresh:true},{qty:1,unit:"",item:"lemon",note:"zested",aisle:"produce",fresh:false}],
+steps:["Two days ahead, rub [[0]] turkey breasts all over with [[1]] kosher salt; refrigerate uncovered on a rack.","Bring to room temp 1 hour before roasting.","Mash [[2]] softened butter with [[3]] chopped sage, [[4]] thyme and the zest of [[5]] lemon; rub under and over skin.","Roast at 425°F 20 min, then 350°F until 155°F in the thickest part, about 75 min.","Rest tented with foil 30 min before carving."],
+makeAhead:"Dry brine 1–2 days ahead. Herb butter can be made 3 days ahead.",finish:"Carve right before serving.",hold:"Rests 30–45 min tented and stays hot."},
+{id:"r2",title:"Make-ahead mashed potatoes",source:"",servings:8,target:8,mode:"ahead",activeMin:40,totalMin:60,ovenTempF:350,
+ingredients:[{qty:5,unit:"lb",item:"yukon gold potatoes",note:"peeled",aisle:"produce",fresh:false},{qty:8,unit:"oz",item:"cream cheese",note:"",aisle:"dairy & eggs",fresh:false},{qty:1,unit:"cup",item:"whole milk",note:"warm",aisle:"dairy & eggs",fresh:false},{qty:8,unit:"tbsp",item:"butter",note:"",aisle:"dairy & eggs",fresh:false},{qty:1,unit:"bunch",item:"chives",note:"sliced",aisle:"produce",fresh:true}],
+steps:["Boil [[0]] potatoes in salted water until tender, 20 min.","Mash with [[1]] cream cheese, [[2]] warm milk and [[3:6]] butter; season.","Spread in a buttered baking dish, dot with the remaining [[3:2]] butter, cover and refrigerate.","Bake covered at 350°F 30 min, uncovered 10 min. Top with [[4]] sliced chives."],
+makeAhead:"Fully assemble up to 2 days ahead and refrigerate.",finish:"Chives go on after reheating.",hold:"Covered, holds 30 min in a warm oven."},
+{id:"r3",title:"Green beans with crispy shallots",source:"",servings:6,target:8,mode:"ahead",activeMin:30,totalMin:35,ovenTempF:null,
+ingredients:[{qty:2,unit:"lb",item:"green beans",note:"trimmed",aisle:"produce",fresh:true},{qty:4,unit:"",item:"shallots",note:"thinly sliced",aisle:"produce",fresh:false},{qty:0.5,unit:"cup",item:"neutral oil",note:"",aisle:"pantry",fresh:false},{qty:2,unit:"tbsp",item:"butter",note:"",aisle:"dairy & eggs",fresh:false}],
+steps:["Fry [[1]] sliced shallots in [[2]] oil until golden; drain on paper towels and salt.","Blanch [[0]] green beans 3 min, shock in ice water, dry well.","Sauté beans in [[3]] butter until hot, about 5 min. Top with shallots."],
+makeAhead:"Blanch beans and fry shallots 1 day ahead; store separately.",finish:"Sauté beans in the last 10 minutes; shallots on top at the table.",hold:"Best served right away."}],
+plan:{sig:"",summary:"Brine Tuesday, do the sides Wednesday, and Thursday is mostly hands-off: 1 hr 20 min of active work.",
+tasks:[
+{at:"2026-11-24T19:00",min:15,recipe:"Turkey",what:"Dry brine both breasts; refrigerate uncovered on a rack",kind:"prep"},
+{at:"2026-11-25T10:00",min:45,recipe:"",what:"Fresh run: green beans, sage, thyme, chives",kind:"shop"},
+{at:"2026-11-25T15:00",min:20,recipe:"Turkey",what:"Make herb butter; refrigerate",kind:"prep"},
+{at:"2026-11-25T15:20",min:50,recipe:"Mashed potatoes",what:"Boil, mash and assemble in baking dish; cover and chill",kind:"prep"},
+{at:"2026-11-25T16:10",min:30,recipe:"Green beans",what:"Fry shallots, blanch and dry beans; store separately",kind:"prep"},
+{at:"2026-11-26T12:30",min:5,recipe:"Turkey",what:"Take turkey and herb butter out to come to room temp",kind:"prep"},
+{at:"2026-11-26T13:30",min:10,recipe:"Turkey",what:"Rub on herb butter; into 425°F oven",kind:"cook"},
+{at:"2026-11-26T13:50",min:75,recipe:"Turkey",what:"Drop oven to 350°F; roast to 155°F",kind:"cook"},
+{at:"2026-11-26T14:20",min:15,recipe:"Mashed potatoes",what:"Take potatoes out of the fridge",kind:"prep"},
+{at:"2026-11-26T15:05",min:30,recipe:"Turkey",what:"Pull turkey; rest tented with foil",kind:"hold"},
+{at:"2026-11-26T15:10",min:40,recipe:"Mashed potatoes",what:"Bake covered 30 min at 350°F, uncovered 10",kind:"cook"},
+{at:"2026-11-26T15:45",min:10,recipe:"Green beans",what:"Sauté beans in butter until hot",kind:"cook"},
+{at:"2026-11-26T15:50",min:10,recipe:"Turkey",what:"Carve; chives on potatoes, shallots on beans",kind:"serve"},
+{at:"2026-11-26T16:00",min:0,recipe:"",what:"Serve",kind:"serve"}],
+tips:["One oven: the turkey and potatoes overlap at 350°F, so put the potatoes on the lower rack.","The turkey's 30-minute rest is your buffer. If you're running late, it can rest up to 45 min."]}};
+
+let S=load()||JSON.parse(JSON.stringify(SAMPLE));
+if(S.sample)S=JSON.parse(JSON.stringify(SAMPLE));
+let view=(location.hash||"#recipes").slice(1);
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+
+function load(){try{const t=localStorage.getItem("mise-state");return t?JSON.parse(t):null}catch(e){return null}}
+function save(){try{localStorage.setItem("mise-state",JSON.stringify(S))}catch(e){}}
+function sig(){return JSON.stringify([S.meal,S.recipes.map(r=>[r.id,r.mode,r.target])])}
+
+/* ---------- Claude, via this site's /api/claude function ---------- */
+const PASS_KEY="mise-pass";
+const getPass=()=>{try{return localStorage.getItem(PASS_KEY)||""}catch(e){return ""}};
+const setPass=p=>{try{localStorage.setItem(PASS_KEY,p)}catch(e){}};
+/* shrink phone photos so uploads stay well under the 4.5 MB request limit */
+function shrink(file){return new Promise((ok,bad)=>{
+  const img=new Image(),url=URL.createObjectURL(file);
+  img.onload=()=>{const max=1600,k=Math.min(1,max/Math.max(img.width,img.height));
+    const c=document.createElement("canvas");c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);ok(c.toDataURL("image/jpeg",0.82))};
+  img.onerror=()=>{URL.revokeObjectURL(url);bad({message:"Couldn't read that photo. Try a JPG or PNG."})};
+  img.src=url;
+})}
+const claude={
+  async json(text,opts={}){
+    const body={prompt:text,tier:opts.modelTier||"default"};
+    if(opts.images&&opts.images.length)body.images=await Promise.all(opts.images.map(shrink));
+    if(opts.urls&&opts.urls.length)body.urls=opts.urls;
+    for(let attempt=0;attempt<3;attempt++){
+      let r;
+      try{r=await fetch("/api/claude",{method:"POST",headers:{"content-type":"application/json","x-mise-pass":getPass()},body:JSON.stringify(body)})}
+      catch(e){throw {message:"You look offline. Check your connection and try again."}}
+      if(r.status===401){
+        const p=window.prompt(attempt?"That passcode didn't work. Try again:":"Enter your Mise passcode:");
+        if(!p)throw {message:"A passcode is needed to use Claude here."};
+        setPass(p.trim());continue;
+      }
+      const out=await r.json().catch(()=>({}));
+      if(r.status===429)throw {code:"rate_limited"};
+      if(!r.ok)throw {message:out.error||"Something went wrong."};
+      return out.data;
+    }
+    throw {message:"A passcode is needed to use Claude here."};
+  }
+};
+
+/* ---------- quantities ---------- */
+const FR=[[0,""],[.125,"⅛"],[.25,"¼"],[.333,"⅓"],[.5,"½"],[.667,"⅔"],[.75,"¾"],[1,""]];
+function fq(n){
+  if(n==null||isNaN(n))return "";
+  if(n>=10)return String(Math.round(n));
+  let w=Math.floor(n),f=n-w,best=FR[0];
+  for(const p of FR)if(Math.abs(p[0]-f)<Math.abs(best[0]-f))best=p;
+  if(best[0]===1){w++;best=FR[0]}
+  return (w?w:"")+(best[1]||"")||"0";
+}
+const scale=r=>(r.target&&r.servings)?r.target/r.servings:1;
+
+/* ---------- render ---------- */
+function render(){
+  $("mealName").value=S.meal.name||"";
+  $("serveAt").value=S.meal.serveAt||"";
+  $("guests").value=S.meal.guests||"";
+  $("ovens").value=S.meal.ovens||1;
+  document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===view));
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id==="v-"+view));
+  $("sampleBar").innerHTML=S.sample?`<div class="sample"><span>Sample meal so you can see how it works.</span><button class="ghost" data-act="clear">Start my own</button></div>`:"";
+  $("nR").textContent=S.recipes.length;
+  countdown();renderRecipes();renderShop();renderPlan();
+}
+function countdown(){
+  const el=$("countdown");if(!S.meal.serveAt){el.textContent="Set a serving time to build a plan.";return}
+  const d=new Date(S.meal.serveAt),ms=d-Date.now();
+  const when=d.toLocaleString([], {weekday:"long",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+  if(ms<0){el.textContent=when;return}
+  const h=Math.floor(ms/36e5),dd=Math.floor(h/24);
+  el.textContent=`${when} · ${dd>=1?dd+" day"+(dd>1?"s":"")+" away":h+" hr "+Math.floor(ms%36e5/6e4)+" min away"}`;
+}
+function renderRecipes(){
+  if(!S.recipes.length){$("recipeList").innerHTML=`<div class="empty">No recipes yet. Paste one above.</div>`;return}
+  $("recipeList").innerHTML=S.recipes.map(r=>{const k=scale(r);return `
+  <article class="ticket" data-id="${r.id}">
+    <div class="top">
+      <div><h3>${esc(r.title)}</h3>
+      <div class="meta">${r.totalMin?`<span>${mins(r.totalMin)} total</span>`:""}${r.activeMin?`<span>${mins(r.activeMin)} hands-on</span>`:""}${r.ovenTempF?`<span>${r.ovenTempF}°F oven</span>`:""}${r.source?`<a href="${esc(r.source)}" target="_blank" rel="noopener">Source</a>`:""}</div></div>
+      <div class="ctl">
+        <div class="seg" role="group" aria-label="When to make">
+          <button class="${r.mode==="dayof"?"on":""}" data-act="mode" data-m="dayof">Day of</button>
+          <button class="${r.mode==="ahead"?"on":""}" data-act="mode" data-m="ahead">Make ahead</button>
+        </div>
+        <label>Serves <input type="number" min="1" max="80" value="${r.target||r.servings||""}" data-act="target"></label>
+        <button class="rm" data-act="rm">Remove</button>
+      </div>
+      ${r.mode==="ahead"&&r.makeAhead?`<p class="ahead">${esc(r.makeAhead)}</p>`:""}
+    </div>
+    <details><summary>Ingredients and instructions</summary><div class="body">
+      ${k!==1?`<p class="hint">Scaled from ${r.servings} to ${r.target} servings.</p>`:""}
+      <h4>Ingredients</h4><ul>${r.ingredients.map(i=>`<li>${i.qty!=null?`<b>${fq(i.qty*k)}${i.unit?" "+esc(i.unit):""}</b> `:""}${esc(i.item)}${i.note?", "+esc(i.note):""}</li>`).join("")}</ul>
+      <h4>Instructions</h4><ol>${r.steps.map(s=>`<li>${stepHTML(r,s,k)}</li>`).join("")}</ol>
+      <div class="notes">
+        ${r.makeAhead?`<p><b>Ahead:</b> ${esc(r.makeAhead)}</p>`:""}
+        ${r.finish?`<p><b>Last minute:</b> ${esc(r.finish)}</p>`:""}
+        ${r.hold?`<p><b>Holding:</b> ${esc(r.hold)}</p>`:""}
+      </div>
+    </div></details>
+  </article>`}).join("");
+}
+function mins(m){m=Math.round(m);return m>=60?Math.floor(m/60)+" hr"+(m%60?" "+m%60+" min":""):m+" min"}
+
+/* ---------- amounts inside steps ---------- */
+const TOK=/\[\[(\d+)(?::([\d.]+))?\]\]/,TOKG=/\[\[(\d+)(?::([\d.]+))?\]\]/g;
+const rxEsc=t=>t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+function ingRx(i){
+  const full=(i.item||"").toLowerCase().trim();if(full.length<3)return null;
+  const stem=full.split(/\s+/).pop().replace(/(es|s)$/,"");
+  return new RegExp("\\b(?:"+rxEsc(full)+"|"+rxEsc(stem)+"(?:es|s)?)\\b","i");
+}
+function stepHTML(r,s,k){
+  const ing=r.ingredients||[];
+  const amt=(i,q)=>{q=q??i.qty;return q==null?"":`<span class="amt">${fq(q*k)}${i.unit?" "+esc(i.unit):""}</span> `};
+  if(TOK.test(s))return esc(s).replace(TOKG,(m,n,q)=>{const i=ing[+n];return i?amt(i,q!=null?+q:null):""});
+  const rx=ing.map(ingRx),ins=[];
+  ing.forEach((i,n)=>{
+    if(!rx[n]||i.qty==null)return;
+    if(r.steps.filter(st=>rx[n].test(st)).length!==1)return;
+    const m=rx[n].exec(s);if(!m)return;
+    if(/[\d½¼¾⅓⅔⅛]\s*\w*\s*$/.test(s.slice(Math.max(0,m.index-14),m.index)))return;
+    ins.push([m.index,n]);
+  });
+  ins.sort((a,b)=>a[0]-b[0]);
+  let out="",p=0;
+  for(const [ix,n] of ins){if(ix<p)continue;out+=esc(s.slice(p,ix))+amt(ing[n]);p=ix}
+  return out+esc(s.slice(p));
+}
+function stepText(r,s,k){const d=document.createElement("div");d.innerHTML=stepHTML(r,s,k);return d.textContent}
+
+function shopItems(){
+  const map=new Map();
+  for(const r of S.recipes){const k=scale(r);
+    for(const i of r.ingredients){
+      const name=(i.item||"").toLowerCase().trim();if(!name)continue;
+      const key=name+"|"+(i.unit||"").toLowerCase();
+      const e=map.get(key)||{key,item:i.item,unit:i.unit||"",qty:0,hasQty:false,aisle:AISLES.includes(i.aisle)?i.aisle:"other",fresh:false,from:new Set()};
+      if(i.qty!=null){e.qty+=i.qty*k;e.hasQty=true}
+      e.fresh=e.fresh||!!i.fresh;e.from.add(r.title);map.set(key,e);
+    }}
+  return [...map.values()];
+}
+function renderShop(){
+  const items=shopItems(),anyAhead=S.recipes.some(r=>r.mode==="ahead");
+  const left=items.filter(i=>!S.checks["s:"+i.key]).length;
+  $("nS").textContent=left;
+  if(!items.length){$("shopList").innerHTML=`<div class="empty">Add a recipe and its ingredients land here, combined.</div>`;$("shopHint").textContent="";return}
+  $("shopHint").textContent=`${left} of ${items.length} left`;
+  const serve=S.meal.serveAt?new Date(S.meal.serveAt):null;
+  const fd=serve?new Date(serve-864e5).toLocaleDateString([], {weekday:"long",month:"short",day:"numeric"}):"the day before";
+  const main=anyAhead?items.filter(i=>!i.fresh):items, fresh=anyAhead?items.filter(i=>i.fresh):[];
+  const block=(title,when,list)=>!list.length?"":`<div class="section"><div class="listhead"><h2>${title}</h2></div><p class="when">${when}</p>${
+    AISLES.map(a=>{const g=list.filter(i=>i.aisle===a).sort((x,y)=>x.item.localeCompare(y.item));if(!g.length)return "";
+      return `<div class="aisle">${a[0].toUpperCase()+a.slice(1)}</div>`+g.map(i=>{const done=!!S.checks["s:"+i.key];return `
+      <label class="item ${done?"done":""}"><input type="checkbox" data-ck="s:${esc(i.key)}" ${done?"checked":""}>
+      <span class="t">${i.hasQty?`<span class="q">${fq(i.qty)}${i.unit?" "+esc(i.unit):""}</span> `:""}${esc(i.item)}${i.fresh&&!anyAhead?`<span class="freshtag">buy close to the day</span>`:""}
+      <span class="for">${esc([...i.from].join(" · "))}</span></span></label>`}).join("")}).join("")}</div>`;
+  $("shopList").innerHTML=block(anyAhead?"Main shop":"Shopping list",anyAhead?"Before your first prep day. Everything that keeps.":"Everything for the meal, combined across recipes.",main)
+    +block("Fresh run",`${fd}. Herbs, greens and anything that fades.`,fresh);
+}
+function renderPlan(){
+  const p=S.plan,stale=p&&p.sig&&p.sig!==sig();
+  const btn=`<button id="planBtn" data-act="plan">${p?"Rebuild plan":"Build my prep plan"}</button>`;
+  if(!S.recipes.length){$("planTop").innerHTML=`<div class="empty">Add recipes first, then build a plan.</div>`;$("planList").innerHTML="";return}
+  $("planTop").innerHTML=`${stale?`<div class="stale">Recipes or timing changed since this plan was made. Rebuild to update it.</div>`:""}
+    <div class="row" style="margin-top:0;justify-content:space-between"><span class="status" id="planStatus" style="margin:0"></span>${btn}</div>
+    ${p?`<p class="summary">${esc(p.summary)}</p>`:`<p class="hint">Works backward from your serving time: make-ahead dishes are spread over the days before, and day-of cooking is timed so everything is hot together.</p>`}`;
+  if(!p){$("planList").innerHTML="";return}
+  const days={};for(const t of [...p.tasks].sort((a,b)=>a.at.localeCompare(b.at)))(days[t.at.slice(0,10)]??=[]).push(t);
+  const now=Date.now();let nextFound=false;
+  $("planList").innerHTML=Object.entries(days).map(([d,ts])=>{
+    const act=ts.filter(t=>t.kind!=="hold"&&t.kind!=="cook").reduce((s,t)=>s+(t.min||0),0);
+    const label=new Date(d+"T12:00").toLocaleDateString([], {weekday:"long",month:"short",day:"numeric"});
+    return `<div class="day"><h3>${label}</h3><span>${act?mins(act)+" hands-on":""}</span></div>`+ts.map(t=>{
+      const key="t:"+t.at+t.what,done=!!S.checks[key];let nx="";
+      if(!done&&!nextFound&&new Date(t.at).getTime()+(t.min||0)*6e4>now){nextFound=true;nx=" next"}
+      return `<label class="task kind-${esc(t.kind)}${done?" done":""}${nx}">
+        <span class="tm">${new Date(t.at).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}</span>
+        <span class="what">${esc(t.what)}<span class="rc">${esc(t.recipe||"")}${t.min?(t.recipe?" · ":"")+mins(t.min):""}</span></span>
+        <input type="checkbox" data-ck="${esc(key)}" ${done?"checked":""} aria-label="Done">
+      </label>`}).join("")}).join("")
+    +(p.tips&&p.tips.length?`<div class="tips"><h3>Keeping it all hot</h3><ul>${p.tips.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`:"");
+}
+
+/* ---------- prompts ---------- */
+const EXTRACT=`You extract recipes for a meal-planning app. The input is recipe text, recipe URLs with their fetched page contents, notes copied from a phone, or photos of handwritten cards. It may contain several recipes.
+Return JSON only, no prose: {"recipes":[{"title":string,"source":url or "","servings":number,"activeMin":number,"totalMin":number,"ovenTempF":number or null,
+"ingredients":[{"qty":number or null,"unit":string ("" for countable items; use cup, tbsp, tsp, lb, oz, g, bunch, clove, can...),"item":short grocery name in lowercase as you'd write it on a shopping list,"note":prep such as "diced" or "",
+"aisle":one of "produce","meat & seafood","dairy & eggs","bakery","pantry","spices","frozen","other","fresh":true if quality drops when bought more than 2 days ahead (tender herbs, salad greens, berries, fish, fresh bread, avocados, green beans)}],
+"steps":[each instruction as one plain sentence or two. Wherever a step uses an ingredient, put a token right before the ingredient's name: [[n]] where n is the ingredient's 0-based index in "ingredients" if the step uses all of it, or [[n:q]] if it uses only part, with q in that ingredient's unit (e.g. "[[3:6]] butter" for 6 of 8 tbsp). Do not write the amount yourself; the app replaces the token with the scaled amount. Every ingredient with a quantity should get a token in at least one step.],
+"makeAhead":what can be done ahead and how many days, safely and without losing quality ("" if nothing),
+"finish":what must happen in the last minutes (garnish, crisping, dressing),
+"hold":how well it holds hot after cooking and how}],"error":""}
+Convert fractions to decimals. Estimate times from the steps when not stated. Set "source" to the page URL a recipe came from.
+If a URL's page could not be fetched or has no recipe in it, skip it. If nothing usable is left, return {"recipes":[],"error":"need_text"}. Never rebuild a recipe from its title or from memory.`;
+
+async function addRecipes(){
+  const txt=$("src").value.trim(),files=[...$("photo").files];
+  if(!txt&&!files.length){status("addStatus","Paste a recipe or choose a photo first.",1);return}
+  const b=$("addBtn");b.disabled=true;b.innerHTML=`<span class="spin"></span> Reading`;
+  const urls=(txt.match(/https?:\/\/[^\s<>"')]+/g)||[]).slice(0,6);
+  status("addStatus",files.length?"Reading the card…":urls.length?"Opening the recipe page…":"Pulling out ingredients and steps…");
+  try{
+    const opts={modelTier:"default",urls};
+    if(files.length)opts.images=files;
+    const out=await claude.json(EXTRACT+"\n\nINPUT:\n"+(txt||"(see attached photos)"),opts);
+    if(out&&out.error==="need_text")throw {message:"That site wouldn't let Mise read the recipe. Open it, copy the page text and paste it here."};
+    const rs=(out&&out.recipes)||[];if(!rs.length)throw {message:"No recipe found in that. Try pasting the full text."};
+    if(S.sample){S={meal:{...S.meal,name:"",serveAt:"",guests:S.meal.guests},recipes:[],plan:null,checks:{}}}
+    for(const r of rs){S.recipes.push({id:uid(),title:r.title||"Untitled recipe",source:r.source||(urls.length===1?urls[0]:""),
+      servings:+r.servings||+S.meal.guests||4,target:+S.meal.guests||+r.servings||4,mode:"dayof",activeMin:+r.activeMin||0,totalMin:+r.totalMin||0,ovenTempF:r.ovenTempF||null,
+      ingredients:Array.isArray(r.ingredients)?r.ingredients:[],steps:Array.isArray(r.steps)?r.steps:[],makeAhead:r.makeAhead||"",finish:r.finish||"",hold:r.hold||""})}
+    $("src").value="";$("photo").value="";
+    status("addStatus",`Added ${rs.map(r=>r.title).join(", ")}.`);save();render();
+  }catch(e){status("addStatus",e.code==="rate_limited"?"Too many requests just now. Try again in a minute.":(e.message||"Something went wrong."),1)}
+  b.disabled=false;b.textContent="Add recipe";
+}
+async function buildPlan(){
+  if(!S.meal.serveAt){status("planStatus","Set a serving time at the top first.",1);return}
+  const b=$("planBtn");b.disabled=true;b.innerHTML=`<span class="spin"></span> Planning`;status("planStatus","Working backward from serving time…");
+  const recipes=S.recipes.map(r=>({title:r.title,mode:r.mode==="ahead"?"make ahead":"day of",servings:r.target,activeMin:r.activeMin,totalMin:r.totalMin,ovenTempF:r.ovenTempF,steps:r.steps.map(s=>stepText(r,s,scale(r))),makeAhead:r.makeAhead,finish:r.finish,hold:r.hold,freshItems:r.ingredients.filter(i=>i.fresh).map(i=>i.item)}));
+  const now=new Date(),local=new Date(now-now.getTimezoneOffset()*6e4).toISOString().slice(0,16);
+  const prompt=`You are an experienced caterer pacing a home cook's large meal. Right now it is ${local} local time.
+Serving time: ${S.meal.serveAt}. Guests: ${S.meal.guests||"unknown"}. Ovens: ${S.meal.ovens||1}.
+Recipes (JSON): ${JSON.stringify(recipes)}
+Build a timeline. Rules:
+- Work backward from serving time so every dish reaches the table at its best temperature together. Use resting, warm-oven holding (170–200°F), covered reheating and staggered stovetop finishes.
+- "make ahead" recipes: do the steps that can safely be done ahead on the days before (never more days ahead than the recipe allows), spread so no single day is heavy, usually in an afternoon or evening slot. Leave last-minute steps (finish) for the day of. Never schedule anything before right now.
+- "day of" recipes happen entirely on the serving day.
+- The cook wants to spend the serving day with family: minimise hands-on time that day and cluster it.
+- Respect oven count and temperatures: no two dishes in the same oven at different temperatures at once unless you say how.
+- If any recipe is make ahead, add a "shop" task for the main shop before the first prep task, and a "shop" task for fresh items the day before serving.
+- End with a "serve" task at the serving time.
+- In any task that uses an ingredient, include its amount exactly as the steps give it (e.g. "Mash potatoes with 8 oz cream cheese and 1 cup warm milk"), so the cook never has to look it up.
+Return JSON only: {"summary":one sentence on the shape of the plan including total hands-on time on the serving day,"tasks":[{"at":"YYYY-MM-DDTHH:MM","min":duration minutes,"recipe":short recipe name or "","what":one short imperative line,"kind":"shop"|"prep"|"cook"|"hold"|"serve"}],"tips":[2 to 4 short tips on keeping everything at serving temperature and what to do if running late]}`;
+  try{
+    const out=await claude.json(prompt,{modelTier:"complex"});
+    if(!out||!Array.isArray(out.tasks)||!out.tasks.length)throw {message:"The plan came back empty. Try again."};
+    S.plan={sig:sig(),summary:out.summary||"",tasks:out.tasks.filter(t=>t&&t.at&&t.what),tips:out.tips||[]};
+    for(const k of Object.keys(S.checks))if(k.startsWith("t:"))delete S.checks[k];
+    S.sample=false;save();render();
+  }catch(e){status("planStatus",e.code==="rate_limited"?"Too many requests just now. Try again in a minute.":(e.message||"Couldn't build the plan."),1);b.disabled=false;b.textContent="Try again"}
+}
+function status(id,msg,err){const el=$(id);if(el){el.textContent=msg;el.classList.toggle("err",!!err)}}
+
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  const a=e.target.closest("[data-act]");if(!a)return;
+  const act=a.dataset.act,card=a.closest(".ticket"),r=card&&S.recipes.find(x=>x.id===card.dataset.id);
+  if(act==="mode"&&r){r.mode=a.dataset.m;S.sample=false;save();render()}
+  else if(act==="rm"&&r){S.recipes=S.recipes.filter(x=>x!==r);save();render()}
+  else if(act==="clear"){S={meal:{name:"",serveAt:"",guests:"",ovens:1},recipes:[],plan:null,checks:{}};save();render();$("mealName").focus()}
+  else if(act==="plan")buildPlan();
+});
+document.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.dataset.ck){S.checks[t.dataset.ck]=t.checked;if(!t.checked)delete S.checks[t.dataset.ck];save();render();return}
+  if(t.dataset.act==="target"){const r=S.recipes.find(x=>x.id===t.closest(".ticket").dataset.id);if(r){r.target=Math.max(1,+t.value||r.servings);save();render()}return}
+  if(t.id==="serveAt"||t.id==="guests"||t.id==="ovens"){S.meal[t.id]=t.id==="serveAt"?t.value:+t.value;save();render()}
+});
+$("mealName").addEventListener("input",e=>{S.meal.name=e.target.value;save()});
+$("mealName").placeholder="Name this meal";
+$("addBtn").addEventListener("click",addRecipes);
+$("photo").addEventListener("change",()=>{const n=$("photo").files.length;if(n)status("addStatus",`${n} photo${n>1?"s":""} ready. Tap Add recipe.`)});
+$("copyShop").addEventListener("click",async()=>{
+  const items=shopItems().filter(i=>!S.checks["s:"+i.key]);
+  const txt=AISLES.map(a=>{const g=items.filter(i=>i.aisle===a);return g.length?a.toUpperCase()+"\n"+g.map(i=>"- "+(i.hasQty?fq(i.qty)+(i.unit?" "+i.unit:"")+" ":"")+i.item+(i.fresh?" (fresh)":"")).join("\n"):""}).filter(Boolean).join("\n\n");
+  try{await navigator.clipboard.writeText(txt);$("copyShop").textContent="Copied"}catch(err){$("copyShop").textContent="Couldn't copy"}
+  setTimeout(()=>$("copyShop").textContent="Copy list",1600);
+});
+window.addEventListener("hashchange",()=>{view=(location.hash||"#recipes").slice(1);if(!["recipes","shopping","prep"].includes(view))view="recipes";render();scrollTo(0,0)});
+if(!["recipes","shopping","prep"].includes(view))view="recipes";
+setInterval(()=>{countdown();if(view==="prep")renderPlan()},60000);
+render();
+}
+</script>
+</body>
+</html>
