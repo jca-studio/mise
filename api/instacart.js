@@ -1,11 +1,11 @@
+import { allowed } from "./_auth.js";
 // Turns the shopping list into an Instacart shopping list page (Instacart Developer Platform).
 // Needs INSTACART_API_KEY in Vercel. INSTACART_ENV=production once Instacart approves the key; otherwise the dev sandbox is used.
 const BASE = process.env.INSTACART_ENV === "production" ? "https://connect.instacart.com" : "https://connect.dev.instacart.tools";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
-  const pass = process.env.APP_PASSCODE;
-  if (pass && req.headers["x-mise-pass"] !== pass) return res.status(401).json({ error: "passcode" });
+  if (!(await allowed(req))) return res.status(401).json({ error: "passcode" });
   if (!process.env.INSTACART_API_KEY) return res.status(501).json({ error: "not_configured" });
 
   const { title = "Mise shopping list", items = [], linkback = "" } = req.body || {};

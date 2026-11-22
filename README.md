@@ -26,6 +26,15 @@ Reference scenario: the "Sunday Roast: Pork (Autumn)" meal card.
 
 On your phone, open the site and use **Add to Home Screen**.
 
+## Accounts, sync and community (Supabase)
+
+1. In Supabase, open **SQL Editor → New query**, paste `supabase/schema.sql`, and click **Run**.
+2. In **Authentication → URL Configuration**, set **Site URL** to the app's production URL and add the same URL under **Redirect URLs**.
+3. In Vercel, add `SUPABASE_URL` and `SUPABASE_ANON_KEY` (from Supabase **Project Settings → API Keys**), then redeploy.
+4. Optional: `ALLOWED_EMAILS` (comma separated) limits who can use Claude through the app. Without it, anyone who signs in can.
+
+Signed-in people get their meals synced across devices, can share a dinner party to the community, make someone else's, and rate and review it.
+
 ## Limits
 
 - Data is saved per browser, so your phone and laptop each keep their own meal. Syncing between devices would need a database (for example Supabase or Vercel's Upstash integration).

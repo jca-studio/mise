@@ -323,6 +323,13 @@ body:not(.rec) #rec{display:none}
 @media(max-width:600px){.settings{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.settings label:first-child{grid-column:1/-1}.task{grid-template-columns:4.4em minmax(0,1fr) auto;gap:10px}.task .tm{font-size:17px}}
 
 /* ===== Fig & Sage theme (overrides above) ===== */
+.acct{display:flex;justify-content:flex-end;align-items:center;gap:10px;min-height:44px;margin:-14px 0 6px}
+body.community header,body.community nav,body.community main,body.shared header,body.shared nav,body.shared main{display:none}
+body:not(.community) #community,body:not(.shared) #shared{display:none}
+.pagesec{padding-top:32px;padding-bottom:60px}
+#commStrip .ctile,#commBody .ctile{background:#fff;border:1px solid var(--line);min-height:150px}
+#commStrip .ctile b,#commBody .ctile b{font-family:var(--serif);font-weight:400;font-size:24px;line-height:1.1}
+#commStrip .ctile::before,#commBody .ctile::before{display:none}
 body{font-family:Inter,system-ui,sans-serif;background:var(--bg)}
 h1,h2,h3{font-family:Inter,system-ui,sans-serif;font-weight:600}
 button,.btn{font-family:Inter,system-ui,sans-serif;font-weight:600;background:var(--ink);color:#fff;border-radius:999px}
@@ -419,6 +426,7 @@ details.knotes summary{color:var(--ink);font-family:var(--serif);font-weight:400
 </head>
 <body>
 <section id="home" class="wide">
+  <div id="acct" class="acct"></div>
   <div class="hero">
     <div>
       <h1 class="brand">Mise</h1>
@@ -435,6 +443,7 @@ details.knotes summary{color:var(--ink);font-family:var(--serif);font-weight:400
   <h2 class="htitle" style="margin-top:30px">Recipe bank</h2>
   <p class="hint" style="margin:-6px 0 12px">Recipes you love, ready to drop into any meal.</p>
   <div class="meals" id="bankCards"></div>
+  <div id="commStrip"></div>
   <details class="knotes"><summary>Kitchen notes</summary>
     <p class="hint" style="margin-top:0">What Mise remembers about how you cook. It uses these in every plan and while you cook. Edit or delete anything.</p>
     <div class="notes-ed" id="notesEd"></div>
@@ -443,6 +452,8 @@ details.knotes summary{color:var(--ink);font-family:var(--serif);font-weight:400
 <section id="party" class="wide"><div id="partyBody"></div></section>
 <section id="rec" class="wide"><div id="recBody"></div></section>
 <section id="space" class="wide"><div id="spaceBody"></div></section>
+<section id="community" class="wide pagesec"><div id="commBody"></div></section>
+<section id="shared" class="wide pagesec"><div id="sharedBody"></div></section>
 <header><div class="wide hgrid">
   <div class="hleft">
   <div class="topbar"><a href="#meals">← All meals</a><button data-act="delmeal">Delete meal</button></div>
@@ -698,7 +709,7 @@ live:{status:"done",events:[],tasks:[],chat:[],reminders:[],appliances:[],sugges
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9);
-const VIEWS=["meals","party","rec","space","recipes","shopping","prep","cook"];
+const VIEWS=["meals","party","rec","space","community","shared","recipes","shopping","prep","cook"];
 const blankMeal=()=>normMeal({id:uid(),meal:{name:"",serveAt:"",guests:"",ovens:1,busy:""},recipes:[],plan:null,checks:{}});
 const sampleMeal=()=>normMeal({...JSON.parse(JSON.stringify(SAMPLE)),id:"sample"});
 
@@ -706,7 +717,7 @@ const sampleMeal=()=>normMeal({...JSON.parse(JSON.stringify(SAMPLE)),id:"sample"
 let DB=seed(load());
 let S=DB.meals.find(m=>m.id===DB.cur)||null;
 let view=(location.hash||"").slice(1);
-if(!VIEWS.includes(view)||(!S&&!["meals","party","rec","space"].includes(view)))view="meals";
+if(!VIEWS.includes(view)||(!S&&!["meals","party","rec","space","community","shared"].includes(view)))view="meals";
 
 function load(){
   try{
@@ -772,11 +783,11 @@ function seed(db){
 function normMeal(m){
   m.live=m.live||{status:"idle",events:[],tasks:[],chat:[],reminders:[],appliances:[],suggest:[]};
   for(const k of ["events","tasks","chat","reminders","appliances","suggest"])m.live[k]=m.live[k]||[];
-  m.meal.space=m.meal.space||"home";
+  if(m.meal)m.meal.space=m.meal.space||"home";
   for(const r of m.recipes){r.temps=r.temps||[];r.changes=r.changes||[];r.state=r.state||"";if(r.targetTempF===undefined)r.targetTempF=null}
   return m;
 }
-function save(){try{localStorage.setItem("mise-meals",JSON.stringify(DB))}catch(e){}}
+function save(){try{localStorage.setItem("mise-meals",JSON.stringify(DB))}catch(e){}if(typeof queuePush==="function")queuePush()}
 function openMeal(m){S=m;DB.cur=m.id;save();go(m.live&&m.live.status!=="idle"?"cook":"recipes")}
 function go(v){if(location.hash==="#"+v){view=v;render()}else location.hash=v}
 /* replace the open meal (used when leaving the sample) */
@@ -805,9 +816,10 @@ const claude={
     if(opts.urls&&opts.urls.length)body.urls=opts.urls;
     for(let attempt=0;attempt<3;attempt++){
       let r;
-      try{r=await fetch("/api/claude",{method:"POST",headers:{"content-type":"application/json","x-mise-pass":getPass()},body:JSON.stringify(body)})}
+      try{r=await fetch("/api/claude",{method:"POST",headers:{"content-type":"application/json","x-mise-pass":getPass(),...authHeader()},body:JSON.stringify(body)})}
       catch(e){throw {message:"You look offline. Check your connection and try again."}}
       if(r.status===401){
+        if(session)throw {message:"Your account isn't on the invite list for Claude yet. Ask Jenna to add your email, or enter the passcode after signing out."};
         const p=window.prompt(attempt?"That passcode didn't work. Try again:":"Enter your Mise passcode:");
         if(!p)throw {message:"A passcode is needed to use Claude here."};
         setPass(p.trim());continue;
@@ -857,9 +869,13 @@ function render(){
   document.body.classList.toggle("rec",view==="rec");
   document.body.classList.toggle("space",view==="space");
   if(view==="space"){$("cmd").hidden=true;renderSpace();return}
+  document.body.classList.toggle("community",view==="community");
+  document.body.classList.toggle("shared",view==="shared");
+  if(view==="community"){$("cmd").hidden=true;renderCommunity();if(sb)loadCommunity();return}
+  if(view==="shared"){$("cmd").hidden=true;renderShared();return}
   if(view==="party"){$("cmd").hidden=true;renderParty();return}
   if(view==="rec"){$("cmd").hidden=true;renderRec();return}
-  if(view==="meals"){$("cmd").hidden=true;document.body.classList.remove("cooking");renderHome();renderBankTiles();renderNotes();return}
+  if(view==="meals"){$("cmd").hidden=true;document.body.classList.remove("cooking");renderHome();renderBankTiles();renderNotes();renderAccount();renderCommunityStrip();return}
   $("mealName").value=S.meal.name||"";
   $("serveAt").value=S.meal.serveAt||"";
   $("guests").value=S.meal.guests||"";
@@ -890,7 +906,7 @@ function renderRecipes(){
     <div>
     <div class="top">
       <div><h3>${esc(r.title)}</h3>
-      <div class="meta">${r.totalMin?`<span>${mins(r.totalMin)} total</span>`:""}${r.activeMin?`<span>${mins(r.activeMin)} hands-on</span>`:""}${r.ovenTempF?`<span>${r.ovenTempF}°F oven</span>`:""}${r.source?`<a href="${esc(r.source)}" target="_blank" rel="noopener">Source</a>`:""}</div></div>
+      <div class="meta">${r.totalMin?`<span>${mins(r.totalMin)} total</span>`:""}${r.activeMin?`<span>${mins(r.activeMin)} hands-on</span>`:""}${r.ovenTempF?`<span>${r.ovenTempF}°F oven</span>`:""}${r.siteRating?`<span>★ ${(+r.siteRating.value).toFixed(1)}${r.siteRating.count?` (${(+r.siteRating.count).toLocaleString()})`:""} on the site</span>`:""}${r.source?`<a href="${esc(r.source)}" target="_blank" rel="noopener">Source</a>`:""}</div></div>
       <div class="ctl">
         <div class="seg" role="group" aria-label="When to make">
           <button class="${r.mode==="dayof"?"on":""}" data-act="mode" data-m="dayof">Day of</button>
@@ -968,7 +984,7 @@ async function toInstacart(){
   const b=$("icBtn");b.disabled=true;b.innerHTML='<span class="spin"></span> Building list…';
   const win=window.open("","_blank");
   try{
-    const r=await fetch("/api/instacart",{method:"POST",headers:{"content-type":"application/json","x-mise-pass":getPass()},
+    const r=await fetch("/api/instacart",{method:"POST",headers:{"content-type":"application/json","x-mise-pass":getPass(),...authHeader()},
       body:JSON.stringify({title:(S.meal.name||"Dinner party")+" · Mise",linkback:location.origin,items:items.map(i=>({name:i.item,display:(i.hasQty?fq(i.qty)+(i.unit?" "+i.unit:"")+" ":"")+i.item,qty:i.hasQty?i.qty:0,unit:IC_UNITS[(i.unit||"").toLowerCase()]||i.unit||"each"}))})});
     const out=await r.json().catch(()=>({}));
     if(r.status===501)throw {message:"Instacart isn't connected yet. It needs an Instacart Developer Platform key added in Vercel."};
@@ -1031,6 +1047,7 @@ Return JSON only, no prose: {"recipes":[{"title":string,"source":url or "","serv
 "makeAhead":what can be done ahead and how many days, safely and without losing quality ("" if nothing),
 "finish":what must happen in the last minutes (garnish, crisping, dressing),
 "hold":how well it holds hot after cooking and how,
+"siteRating":{"value":number,"count":number} only if the fetched page itself shows a rating (e.g. aggregateRating), else null; never invent one,
 "targetTempF":safe target internal temperature in °F for a roast, whole bird, chops or fish that should be checked with a thermometer (pork 145, poultry 165, ground meat 160), else null}],"error":""}
 List EVERY ingredient in the recipe: include salt, pepper, oil, butter for greasing, water, garnishes, "to taste" and optional items, and ingredients from every section (crust, filling, topping, sauce, dressing, marinade, for serving). If the same item appears in two sections, list it twice with each section in "note". Never skip an ingredient because it has no quantity; use qty null.
 Convert fractions to decimals (qty is always a number or null, never a string). Estimate times from the steps when not stated. Set "source" to the page URL a recipe came from.
@@ -1041,7 +1058,7 @@ function toRecipe(r,guests,course,src){
   return {id:uid(),title:r.title||"Untitled recipe",course:course||r.course||"",source:r.source||src||"",
     servings:+r.servings||+guests||4,target:+guests||+r.servings||4,mode:"dayof",activeMin:+r.activeMin||0,totalMin:+r.totalMin||0,ovenTempF:+r.ovenTempF||null,
     ingredients:Array.isArray(r.ingredients)?r.ingredients:[],steps:Array.isArray(r.steps)?r.steps:[],makeAhead:r.makeAhead||"",finish:r.finish||"",hold:r.hold||"",
-    targetTempF:+r.targetTempF||null,notes:r.notes||"",state:"",temps:[],changes:[],generated:!!r.generated};
+    targetTempF:+r.targetTempF||null,notes:r.notes||"",siteRating:r.siteRating&&+r.siteRating.value?{value:+r.siteRating.value,count:+r.siteRating.count||0}:null,state:"",temps:[],changes:[],generated:!!r.generated};
 }
 async function addRecipes(){
   const txt=$("src").value.trim(),files=[...$("photo").files];
@@ -1487,7 +1504,7 @@ async function loadFromLink(r,statusId){
     if(out&&out.error==="need_text")throw {message:"That site wouldn't let Mise read it. Copy the recipe text and paste it in instead."};
     const x=(out&&out.recipes||[])[0];if(!x)throw {message:"No recipe found on that page."};
     const n=toRecipe(x,r.target,r.course,r.source);
-    for(const k of ["ingredients","steps","servings","activeMin","totalMin","ovenTempF","targetTempF","makeAhead","finish","hold"])if(n[k]!=null&&!(Array.isArray(n[k])&&!n[k].length))r[k]=n[k];
+    for(const k of ["ingredients","steps","servings","activeMin","totalMin","ovenTempF","targetTempF","makeAhead","finish","hold","siteRating"])if(n[k]!=null&&!(Array.isArray(n[k])&&!n[k].length))r[k]=n[k];
     if(!r.target)r.target=n.servings;
     save();status(statusId,"");return true;
   }catch(e){status(statusId,e.message||"Couldn't load it.",1);return false}
@@ -1667,6 +1684,7 @@ function renderMenu(){
   el.innerHTML=`<div class="mc-h"><b>The menu</b><span>${ds.length} dish${ds.length===1?"":"es"}${S.meal.guests?` · ${S.meal.guests} guests`:""}</span></div>
     ${ds.length?Object.entries(groups).map(([c,rs])=>`<div class="mc-c">${esc(c)}</div><ul>${rs.map(r=>`<li><a data-goto="${r.id}">${esc(r.title)}</a>${r.mode==="ahead"?"<i>make ahead</i>":""}${!r.ingredients.length?`<i style="background:var(--warn);color:#8a5a00">no recipe yet</i>`:""}</li>`).join("")}</ul>`).join("")
       :`<p class="hint">Add recipes and they'll line up here by course.</p>`}
+    ${sb?`<div class="mc-k">${S.sharedId?`Shared with the community. <a data-act="share">Update</a> · <a data-act="unshare">Unshare</a> · <a data-shared="${esc(S.sharedId)}">View</a>`:`<a data-act="share">Share this dinner party with the community</a>`}</div>`:""}
     <div class="mc-k">Cooking at <b>${esc(sp.name)}</b>${spaceShort(sp)?`: ${esc(spaceShort(sp))}`:""}. <a data-act="space-edit">Edit</a></div>
     ${ds.length>1?`<div class="bal"><h4>How balanced is this meal?</h4>
       ${b?`<div class="verdict">${esc(b.verdict)}</div><p class="hint" style="margin:2px 0 8px">${esc(b.summary)}</p>
@@ -1713,6 +1731,158 @@ Judge it as a whole meal. Return JSON only: {"verdict":2 to 4 words such as "Nic
   balBusy=false;renderMenu();
 }
 
+/* ---------- accounts and sync (Supabase) ---------- */
+let sb=null,session=null,cloudReady=false,pushT=null,lastSynced="",pushing=false;
+const authHeader=()=>session?{Authorization:"Bearer "+session.access_token}:{};
+const myName=()=>DB.prefs.name||(session&&session.user.email||"").split("@")[0]||"A Mise cook";
+async function initCloud(){
+  try{
+    const c=await fetch("/api/config").then(r=>r.json());
+    if(!c.supabaseUrl||!c.supabaseAnonKey)return;
+    const {createClient}=await import("https://esm.sh/@supabase/supabase-js@2");
+    sb=createClient(c.supabaseUrl,c.supabaseAnonKey,{auth:{persistSession:true,detectSessionInUrl:true,autoRefreshToken:true}});
+    const {data}=await sb.auth.getSession();session=data.session;
+    sb.auth.onAuthStateChange((ev,s)=>{const was=session;session=s;if(s&&!was)pullAndMerge();if(!s){cloudReady=false}renderAccount()});
+    if(session)await pullAndMerge();
+    renderAccount();loadCommunity();
+    document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")refreshFromCloud()});
+  }catch(e){sb=null}
+}
+/* first sign-in on a device: keep everything from both sides, the account's copy wins where they overlap */
+function mergeDB(remote,local){
+  const out=JSON.parse(JSON.stringify(remote));
+  out.meals=out.meals||[];out.bank=out.bank||[];out.spaces=out.spaces||[];out.prefs=out.prefs||{notes:[]};out.seeded={...(local.seeded||{}),...(out.seeded||{})};
+  for(const m of local.meals||[])if(!out.meals.some(y=>y.id===m.id||norm(y.meal.name)===norm(m.meal.name)))out.meals.push(m);
+  for(const b of local.bank||[])if(!out.bank.some(y=>y.id===b.id||norm(y.title)===norm(b.title)))out.bank.push(b);
+  for(const s of local.spaces||[])if(!out.spaces.some(y=>y.id===s.id))out.spaces.push(s);
+  for(const n of (local.prefs&&local.prefs.notes)||[])if(!out.prefs.notes.includes(n))out.prefs.notes.push(n);
+  out.cur=local.cur;return out;
+}
+function adoptDB(next){
+  const curId=S&&S.id;DB=seed(next);S=DB.meals.find(m=>m.id===curId)||null;
+  if(!S&&!["meals","party","rec","space","community","shared"].includes(view))view="meals";
+  try{localStorage.setItem("mise-meals",JSON.stringify(DB))}catch(e){}
+  render();
+}
+async function pullAndMerge(){
+  if(!sb||!session)return;
+  const {data,error}=await sb.from("user_state").select("data,updated_at").eq("user_id",session.user.id).maybeSingle();
+  if(error){toast("Couldn't load your account: "+error.message);return}
+  cloudReady=true;
+  if(data&&data.data){lastSynced=data.updated_at;adoptDB(mergeDB(data.data,DB))}
+  pushNow();
+}
+async function refreshFromCloud(){
+  if(!sb||!session||!cloudReady||pushT||pushing)return;
+  const {data}=await sb.from("user_state").select("data,updated_at").eq("user_id",session.user.id).maybeSingle();
+  if(data&&data.updated_at&&data.updated_at!==lastSynced&&new Date(data.updated_at)>new Date(lastSynced||0)){lastSynced=data.updated_at;adoptDB(data.data)}
+}
+function queuePush(){if(!sb||!session||!cloudReady)return;clearTimeout(pushT);pushT=setTimeout(pushNow,1200)}
+async function pushNow(){
+  clearTimeout(pushT);pushT=null;if(!sb||!session)return;pushing=true;
+  const at=new Date().toISOString();
+  const {error}=await sb.from("user_state").upsert({user_id:session.user.id,data:DB,updated_at:at});
+  pushing=false;if(!error)lastSynced=at;
+}
+function renderAccount(){
+  const el=$("acct");if(!el)return;
+  if(!sb){el.innerHTML="";return}
+  el.innerHTML=session?`<span class="hint" style="margin:0">Signed in as <b>${esc(session.user.email)}</b> · synced</span> <button class="rm" data-act="signout">Sign out</button>`
+    :`<button class="ghost" data-act="signin-open" style="min-height:40px">Sign in to sync and share</button>`;
+}
+function renderSignin(){
+  $("acct").innerHTML=`<form id="signinForm" class="row" style="margin:0;justify-content:flex-end"><input type="email" id="signinEmail" required placeholder="you@email.com" aria-label="Email" style="font:16px Inter,system-ui,sans-serif;padding:10px 14px;border-radius:999px;border:1px solid var(--line);min-height:44px;min-width:240px"><button>Email me a sign-in link</button><button type="button" class="rm" data-act="signin-cancel">Cancel</button></form>`;
+  $("signinEmail").focus();
+}
+async function sendLink(email){
+  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
+  $("acct").innerHTML=error?`<span class="status err">${esc(error.message)}</span> <button class="rm" data-act="signin-open">Try again</button>`
+    :`<span class="hint" style="margin:0">Check <b>${esc(email)}</b> for your sign-in link. Open it on this device.</span>`;
+}
+
+/* ---------- community ---------- */
+let community=null,shared=null,sharedBusy=false;
+const avg=rs=>rs&&rs.length?(rs.reduce((s,r)=>s+r.stars,0)/rs.length):0;
+const starsTxt=(v,n)=>n?`★ ${v.toFixed(1)} · ${n} review${n>1?"s":""}`:"No reviews yet";
+async function loadCommunity(){
+  if(!sb)return;
+  const {data,error}=await sb.from("shared_meals").select("id,title,owner_name,summary,created_at,ratings(stars)").order("created_at",{ascending:false}).limit(40);
+  if(!error){community=data;if(view==="meals")renderCommunityStrip();if(view==="community")renderCommunity()}
+}
+function communityTile(c){const a=avg(c.ratings);return `<button class="mcard ctile" data-shared="${esc(c.id)}"><span class="ctag">By ${esc(c.owner_name)}</span><b>${esc(c.title)}</b><span>${esc(c.summary)}</span><span>${starsTxt(a,(c.ratings||[]).length)}</span></button>`}
+function renderCommunityStrip(){
+  const el=$("commStrip");if(!el)return;
+  if(!sb||!community||!community.length){el.innerHTML=sb?`<h2 class="htitle" style="margin-top:30px">From the community</h2><p class="hint">Nobody has shared a dinner party yet. Share one from its menu box to start.</p>`:"";return}
+  el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:30px"><h2 class="htitle" style="margin:0">From the community</h2><a href="#community" class="hint">See all</a></div>
+    <p class="hint" style="margin:4px 0 12px">Dinner parties other cooks have shared. Make one yours in a tap.</p><div class="meals">${community.slice(0,4).map(communityTile).join("")}</div>`;
+}
+function renderCommunity(){
+  $("commBody").innerHTML=`<a href="#meals" class="hint" style="text-decoration:none">← Back</a>
+    <h1 class="brand" style="font-size:clamp(36px,5vw,60px);margin:10px 0 6px">From the community</h1>
+    <p class="intro" style="margin-bottom:22px">Dinner parties other Mise cooks have shared, with their ratings and reviews.</p>
+    ${!sb?`<p class="hint">Community needs accounts to be set up.</p>`:!community?`<p class="hint"><span class="spin" style="display:inline-block"></span> Loading…</p>`:community.length?`<div class="meals">${community.map(communityTile).join("")}</div>`:`<p class="hint">Nothing shared yet.</p>`}`;
+}
+let sharedLoading=false;
+async function openShared(id){
+  if(sharedLoading)return;sharedLoading=true;DB.openShared=id;shared=null;save();go("shared");
+  const {data,error}=await sb.from("shared_meals").select("*,ratings(*)").eq("id",id).maybeSingle();
+  sharedLoading=false;shared=error?{error:error.message}:data||{error:"This dinner party isn't shared anymore."};if(view==="shared")renderShared()}
+function renderShared(){
+  const el=$("sharedBody");
+  if(!shared){el.innerHTML=`<p class="hint"><span class="spin" style="display:inline-block"></span> Loading…</p>`;if(sb&&DB.openShared&&!sharedLoading)setTimeout(()=>openShared(DB.openShared),0);return}
+  if(shared.error){el.innerHTML=`<a href="#community" class="hint">← Back</a><p class="status err">${esc(shared.error)}</p>`;return}
+  const d=shared.data||{},rs=(d.recipes||[]).slice().sort((a,b)=>courseRank(a.course)-courseRank(b.course)),ratings=shared.ratings||[],a=avg(ratings);
+  const mine=session&&ratings.find(r=>r.user_id===session.user.id),own=session&&shared.owner===session.user.id;
+  el.innerHTML=`<a href="#community" class="hint" style="text-decoration:none">← Community</a>
+    <div class="ctag" style="margin-top:14px">By ${esc(shared.owner_name)} · ${starsTxt(a,ratings.length)}</div>
+    <h1 class="brand" style="font-size:clamp(36px,5vw,64px);margin:4px 0 8px">${esc(shared.title)}</h1>
+    <div class="recgrid">
+      <div>${rs.map(r=>`<details class="drow"><summary><span><span class="ctag" style="display:block">${esc(r.course||"Dish")}</span><b>${esc(r.title)}</b></span><span class="hint" style="margin:0">${r.totalMin?mins(r.totalMin):""}</span></summary><div class="body">
+        ${r.ingredients&&r.ingredients.length?`<h4>Ingredients</h4><ul>${r.ingredients.map(i=>`<li>${i.qty!=null?`<b>${fq(i.qty)}${i.unit?" "+esc(i.unit):""}</b> `:""}${esc(i.item)}${i.note?", "+esc(i.note):""}</li>`).join("")}</ul>`:""}
+        ${r.steps&&r.steps.length?`<h4>Steps</h4><ol>${r.steps.map(s=>`<li>${stepHTML(r,s,1)}</li>`).join("")}</ol>`:""}
+        ${r.source?`<p><a href="${esc(r.source)}" target="_blank" rel="noopener">Original recipe</a></p>`:""}</div></details>`).join("")}</div>
+      <div>
+        <div class="adder"><button data-act="makeshared" style="width:100%">Make this dinner party</button><p class="hint">Copies every recipe into a new meal of yours. Set your date and guests and Mise does the rest.</p></div>
+        <div class="sec">Reviews</div>
+        ${session&&!own?`<form id="rateForm" class="adder" style="display:grid;gap:8px"><div class="row" style="margin:0" role="radiogroup" aria-label="Your rating">${[1,2,3,4,5].map(n=>`<button type="button" class="ghost star" data-star="${n}" aria-label="${n} star${n>1?"s":""}" aria-pressed="${(rateDraft||mine?.stars||0)>=n}" style="min-height:40px;padding:0 12px;${(rateDraft||mine?.stars||0)>=n?"background:var(--ink);color:#fff":""}">★</button>`).join("")}</div>
+          <textarea id="rateText" placeholder="How did it go? What would you change?" style="min-height:80px">${esc(mine?.review||"")}</textarea><button>${mine?"Update review":"Post review"}</button></form>`
+          :!session?`<p class="hint">Sign in on the home page to rate and review.</p>`:""}
+        ${ratings.length?ratings.map(r=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>${"★".repeat(r.stars)}${"☆".repeat(5-r.stars)}</b> <span class="hint" style="margin:0">${esc(r.user_name)}</span>${r.review?`<p style="margin:4px 0 0">${esc(r.review)}</p>`:""}</div>`).join(""):`<p class="hint">No reviews yet.</p>`}
+      </div></div>`;
+}
+let rateDraft=0;
+async function postRating(){
+  const stars=rateDraft||(shared.ratings||[]).find(r=>session&&r.user_id===session.user.id)?.stars||0;
+  if(!stars){toast("Pick a star rating first.");return}
+  const {error}=await sb.from("ratings").upsert({shared_id:shared.id,user_id:session.user.id,user_name:myName(),stars,review:$("rateText").value.trim()},{onConflict:"shared_id,user_id"});
+  if(error){toast(error.message);return}
+  rateDraft=0;toast("Thanks for the review.");openShared(shared.id);loadCommunity();
+}
+function makeShared(){
+  const d=shared.data||{},m=blankMeal();
+  m.meal.name=shared.title;m.meal.guests=d.guests||"";m.fromShared=shared.id;
+  m.recipes=(d.recipes||[]).map(r=>({...normMeal({recipes:[JSON.parse(JSON.stringify(r))]}).recipes[0],id:uid(),target:+d.guests||r.servings||4}));
+  DB.meals.push(m);openMeal(m);toast("Added to your meals. Set the date and guests.");
+}
+function shareableMeal(){
+  return {guests:+S.meal.guests||null,recipes:activeDishes().map(r=>({title:r.title,course:r.course||"",source:r.source||"",servings:r.servings,mode:r.mode,activeMin:r.activeMin,totalMin:r.totalMin,
+    ovenTempF:r.ovenTempF,targetTempF:r.targetTempF,ingredients:r.ingredients,steps:r.steps,makeAhead:r.makeAhead,finish:r.finish,hold:r.hold,notes:r.notes||"",siteRating:r.siteRating||null}))};
+}
+async function shareMeal(){
+  if(!session){toast("Sign in on the home page to share.");return}
+  const ds=activeDishes();if(!ds.length){toast("Add some recipes first.");return}
+  const summary=[...new Set(ds.map(r=>r.course).filter(Boolean))].map(c=>`${ds.filter(r=>r.course===c).length} ${c.toLowerCase()}`).join(" · ")||`${ds.length} dishes`;
+  const row={title:S.meal.name||"Dinner party",owner_name:myName(),summary,data:shareableMeal(),updated_at:new Date().toISOString()};
+  const q=S.sharedId?sb.from("shared_meals").update(row).eq("id",S.sharedId).select("id").maybeSingle():sb.from("shared_meals").insert(row).select("id").single();
+  const {data,error}=await q;if(error){toast(error.message);return}
+  if(data)S.sharedId=data.id;save();renderMenu();loadCommunity();toast(S.sharedId?"Shared to the community.":"Updated.");
+}
+async function unshareMeal(){
+  if(!S.sharedId||!confirm("Take this dinner party out of the community? Its reviews go too."))return;
+  const {error}=await sb.from("shared_meals").delete().eq("id",S.sharedId);if(error){toast(error.message);return}
+  delete S.sharedId;save();renderMenu();loadCommunity();toast("Unshared.");
+}
+
 /* ---------- events ---------- */
 document.addEventListener("click",e=>{
   const a=e.target.closest("[data-act]");if(!a)return;
@@ -1732,6 +1902,12 @@ document.addEventListener("click",e=>{
   else if(act==="plan")buildPlan();
   else if(act==="startcook")startCooking();
   else if(act==="balance")checkBalance();
+  else if(act==="signin-open")renderSignin();
+  else if(act==="signin-cancel")renderAccount();
+  else if(act==="signout"){sb.auth.signOut();session=null;cloudReady=false;renderAccount()}
+  else if(act==="share")shareMeal();
+  else if(act==="unshare")unshareMeal();
+  else if(act==="makeshared")makeShared();
   else if(act==="fillgap")fillGaps();
   else if(act==="instacart")toInstacart();
   else if(act==="space-edit")openSpace(spaceOf(S).id);
@@ -1781,8 +1957,14 @@ document.addEventListener("input",e=>{
   else return;
   save();
 });
+document.addEventListener("click",e=>{
+  const c=e.target.closest("[data-shared]");if(c&&sb){openShared(c.dataset.shared);return}
+  const st=e.target.closest("[data-star]");if(st){rateDraft=+st.dataset.star;renderShared()}
+});
 document.addEventListener("submit",e=>{
   e.preventDefault();
+  if(e.target.id==="signinForm"){sendLink($("signinEmail").value.trim());return}
+  if(e.target.id==="rateForm"){postRating();return}
   if(e.target.id==="addNote"){const v=$("noteIn").value.trim();if(v){DB.prefs.notes.push(v);save();renderNotes();$("noteIn").focus()}return}
   const id=e.target.dataset.temp;if(!id)return;
   const r=S.recipes.find(x=>x.id===id),inp=e.target.querySelector("input"),f=+inp.value;
@@ -1842,9 +2024,10 @@ $("copyShop").addEventListener("click",async()=>{
   try{await navigator.clipboard.writeText(txt);$("copyShop").textContent="Copied"}catch(err){$("copyShop").textContent="Couldn't copy"}
   setTimeout(()=>$("copyShop").textContent="Copy list",1600);
 });
-window.addEventListener("hashchange",()=>{if(!$("chat").hidden)setTimeout(renderChat,0);$("fab").hidden=false;view=(location.hash||"").slice(1);if(!VIEWS.includes(view)||(!S&&!["meals","party","rec","space"].includes(view)))view="meals";render();scrollTo(0,0)});
+window.addEventListener("hashchange",()=>{if(!$("chat").hidden)setTimeout(renderChat,0);$("fab").hidden=false;view=(location.hash||"").slice(1);if(!VIEWS.includes(view)||(!S&&!["meals","party","rec","space","community","shared"].includes(view)))view="meals";render();scrollTo(0,0)});
 setInterval(()=>{if(view==="meals")renderHome();else{countdown();if(view==="prep")renderPlan()}},60000);
 render();
+initCloud();
 }
 </script>
 </body>

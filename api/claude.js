@@ -1,3 +1,4 @@
+import { allowed } from "./_auth.js";
 // Vercel serverless function: the only place the Anthropic API key is used.
 // The browser sends { prompt, tier, images?, urls? } and gets back { data } (parsed JSON from Claude).
 
@@ -11,8 +12,7 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
 
   // Simple shared passcode so strangers who find the URL can't spend your API credits.
-  const pass = process.env.APP_PASSCODE;
-  if (pass && req.headers["x-mise-pass"] !== pass) return res.status(401).json({ error: "passcode" });
+  if (!(await allowed(req))) return res.status(401).json({ error: "passcode" });
   if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: "ANTHROPIC_API_KEY is not set in Vercel." });
 
   const { prompt, tier = "default", images = [], urls = [] } = req.body || {};
