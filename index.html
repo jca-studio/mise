@@ -836,6 +836,9 @@ function stepHTML(r,s,k){
 }
 function stepText(r,s,k){const d=document.createElement("div");d.innerHTML=stepHTML(r,s,k);return d.textContent}
 
+/* "1 1/2", "½", "2-3" → a number */
+function parseQty(s){s=String(s).trim().replace(/[½¼¾⅓⅔⅛]/g,c=>({"½":" 1/2","¼":" 1/4","¾":" 3/4","⅓":" 1/3","⅔":" 2/3","⅛":" 1/8"}[c])).replace(/[-–].*$/,"").trim();
+  let t=0,ok=false;for(const p of s.split(/\s+/)){const f=p.match(/^(\d+)\/(\d+)$/);if(f){t+=f[1]/f[2];ok=true}else if(isFinite(+p)&&p!==""){t+=+p;ok=true}}return ok?t:null}
 function shopItems(){
   const map=new Map();
   for(const r of S.recipes.filter(r=>!r.removed)){const k=scale(r);
@@ -843,17 +846,20 @@ function shopItems(){
       const name=(i.item||"").toLowerCase().trim();if(!name)continue;
       const key=name+"|"+(i.unit||"").toLowerCase();
       const e=map.get(key)||{key,item:i.item,unit:i.unit||"",qty:0,hasQty:false,aisle:AISLES.includes(i.aisle)?i.aisle:"other",fresh:false,from:new Set()};
-      if(i.qty!=null){e.qty+=i.qty*k;e.hasQty=true}
+      const q=typeof i.qty==="string"?parseQty(i.qty):i.qty;
+      if(q!=null&&isFinite(q)){e.qty+=q*k;e.hasQty=true}
       e.fresh=e.fresh||!!i.fresh;e.from.add(r.title);map.set(key,e);
     }}
   return [...map.values()];
 }
 function renderShop(){
   const items=shopItems(),anyAhead=S.recipes.some(r=>r.mode==="ahead");
+  const missing=activeDishes().filter(r=>!r.ingredients.length);
   const left=items.filter(i=>!S.checks["s:"+i.key]).length;
   $("nS").textContent=left;
-  if(!items.length){$("shopList").innerHTML=`<div class="empty">Add a recipe and its ingredients land here, combined.</div>`;$("shopHint").textContent="";return}
-  $("shopHint").textContent=`${left} of ${items.length} left`;
+  const gap=missing.length?`<div class="stale"><b>Not on this list yet:</b> ${missing.map(r=>`<a data-goto="${r.id}" style="color:var(--cobalt);cursor:pointer">${esc(r.title)}</a>`).join(", ")}. ${missing.length>1?"These recipes don't":"This recipe doesn't"} have ingredients saved${missing.some(r=>r.source)?" (the site may have blocked Mise)":""}. Open ${missing.length>1?"each one":"it"} to load it from the link or paste the recipe.</div>`:"";
+  if(!items.length){$("shopList").innerHTML=gap+`<div class="empty">Add a recipe and its ingredients land here, combined.</div>`;$("shopHint").textContent="";return}
+  $("shopHint").textContent=`${left} of ${items.length} left · from ${activeDishes().length-missing.length} of ${activeDishes().length} recipes`;
   const serve=S.meal.serveAt?new Date(S.meal.serveAt):null;
   const fd=serve?new Date(serve-864e5).toLocaleDateString([], {weekday:"long",month:"short",day:"numeric"}):"the day before";
   const main=anyAhead?items.filter(i=>!i.fresh):items, fresh=anyAhead?items.filter(i=>i.fresh):[];
@@ -863,7 +869,7 @@ function renderShop(){
       <label class="item ${done?"done":""}"><input type="checkbox" data-ck="s:${esc(i.key)}" ${done?"checked":""}>
       <span class="t">${i.hasQty?`<span class="q">${fq(i.qty)}${i.unit?" "+esc(i.unit):""}</span> `:""}${esc(i.item)}${i.fresh&&!anyAhead?`<span class="freshtag">buy close to the day</span>`:""}
       <span class="for">${esc([...i.from].join(" · "))}</span></span></label>`}).join("")}).join("")}</div>`;
-  $("shopList").innerHTML=block(anyAhead?"Main shop":"Shopping list",anyAhead?"Before your first prep day. Everything that keeps.":"Everything for the meal, combined across recipes.",main)
+  $("shopList").innerHTML=gap+block(anyAhead?"Main shop":"Shopping list",anyAhead?"Before your first prep day. Everything that keeps.":"Everything for the meal, combined across recipes.",main)
     +block("Fresh run",`${fd}. Herbs, greens and anything that fades.`,fresh);
 }
 function renderPlan(){
@@ -900,7 +906,8 @@ Return JSON only, no prose: {"recipes":[{"title":string,"source":url or "","serv
 "finish":what must happen in the last minutes (garnish, crisping, dressing),
 "hold":how well it holds hot after cooking and how,
 "targetTempF":safe target internal temperature in °F for a roast, whole bird, chops or fish that should be checked with a thermometer (pork 145, poultry 165, ground meat 160), else null}],"error":""}
-Convert fractions to decimals. Estimate times from the steps when not stated. Set "source" to the page URL a recipe came from.
+List EVERY ingredient in the recipe: include salt, pepper, oil, butter for greasing, water, garnishes, "to taste" and optional items, and ingredients from every section (crust, filling, topping, sauce, dressing, marinade, for serving). If the same item appears in two sections, list it twice with each section in "note". Never skip an ingredient because it has no quantity; use qty null.
+Convert fractions to decimals (qty is always a number or null, never a string). Estimate times from the steps when not stated. Set "source" to the page URL a recipe came from.
 If a URL's page could not be fetched or has no recipe in it, skip it. If nothing usable is left, return {"recipes":[],"error":"need_text"}. Never rebuild a recipe from its title or from memory.`;
 
 /* a recipe from Claude's JSON, in the app's shape */
@@ -1532,7 +1539,7 @@ function renderMenu(){
   const groups={};for(const r of [...ds].sort((a,b)=>courseRank(a.course)-courseRank(b.course)))(groups[r.course||"Not sorted yet"]??=[]).push(r);
   const sp=spaceOf(S),b=S.balance,stale=b&&b.sig!==balSig();
   el.innerHTML=`<div class="mc-h"><b>The menu</b><span>${ds.length} dish${ds.length===1?"":"es"}${S.meal.guests?` · ${S.meal.guests} guests`:""}</span></div>
-    ${ds.length?Object.entries(groups).map(([c,rs])=>`<div class="mc-c">${esc(c)}</div><ul>${rs.map(r=>`<li><a data-goto="${r.id}">${esc(r.title)}</a>${r.mode==="ahead"?"<i>make ahead</i>":""}</li>`).join("")}</ul>`).join("")
+    ${ds.length?Object.entries(groups).map(([c,rs])=>`<div class="mc-c">${esc(c)}</div><ul>${rs.map(r=>`<li><a data-goto="${r.id}">${esc(r.title)}</a>${r.mode==="ahead"?"<i>make ahead</i>":""}${!r.ingredients.length?`<i style="background:var(--warn);color:#8a5a00">no recipe yet</i>`:""}</li>`).join("")}</ul>`).join("")
       :`<p class="hint">Add recipes and they'll line up here by course.</p>`}
     <div class="mc-k">Cooking at <b>${esc(sp.name)}</b>${spaceShort(sp)?`: ${esc(spaceShort(sp))}`:""}. <a data-act="space-edit">Edit</a></div>
     ${ds.length>1?`<div class="bal"><h4>How balanced is this meal?</h4>
