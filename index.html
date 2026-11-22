@@ -393,8 +393,19 @@ const ROAST_NOTES=[
 "Likes caramelized shallots and red onions.",
 "Likes herbs that complement each other across dishes.",
 "Wants exact, actionable timelines."];
+/* Jenna's perfected Yorkshire puddings, from the Nov 8, 2026 Sunday roast; ratios exactly as she gave them */
+const SAGE_YP={title:"Sage Yorkshire puddings",servings:12,activeMin:10,totalMin:60,ovenTempF:425,
+ ingredients:[I(1,"cup","all-purpose flour","","pantry"),I(1,"cup","whole milk","","dairy & eggs"),I(4,"","large eggs","","dairy & eggs"),
+  I(0.5,"tsp","kosher salt","","spices"),I(5,"","fresh sage leaves","finely chopped","produce",1),I(null,"","beef dripping or neutral oil","½–1 tsp per muffin cup","pantry")],
+ steps:["Whisk [[2]] eggs with [[1]] milk.","Gradually whisk in [[0]] flour and [[3]] salt until the batter is smooth.","Stir in [[4]] finely chopped sage leaves.",
+  "Let the batter rest at least 30 minutes.","Add ½–1 tsp [[5]] dripping or oil to each cup of a metal muffin tin.",
+  "Heat the greased tin in the oven until the fat is shimmering hot. What worked: tin in at 375°F while the roast finished, then left in as the oven rose to 425°F.",
+  "Pull the tin out and quickly pour the batter into each cup about halfway, from a pouring jug. It should sizzle as it hits the fat.",
+  "Bake at 425°F for 20–25 minutes, until risen, golden brown and crisp. Don't open the oven.","Serve immediately."],
+ makeAhead:"Batter rests at least 30 minutes; make it before the roast goes in.",finish:"Straight from the oven to the table.",hold:"Doesn't hold. Time them to come out last.",
+ notes:"Your perfected version, rated perfect. Makes 12–16. Heat the fat generously, pour from a jug, keep the oven shut, and use five sage leaves."};
 const ROAST={id:"sunday-roast-pork",done:true,
-meal:{name:"Sunday Roast: Pork (Autumn)",serveAt:"",guests:4,ovens:1,busy:"Swim lesson, nap and an afternoon park visit"},checks:{},plan:null,
+meal:{name:"Sunday Roast: Pork (Autumn)",when:"November 8, 2026",serveAt:"",guests:4,ovens:1,busy:"Swim lesson, nap and an afternoon park visit"},checks:{},plan:null,
 recipes:[
 {id:"rp1",title:"Garlic-stuffed apple butter–Dijon pork loin",source:"",servings:4,target:4,mode:"dayof",activeMin:20,totalMin:150,ovenTempF:375,targetTempF:145,state:"Served",
  ingredients:[I(3.88,"lb","boneless pork loin","not rolled or tied","meat & seafood"),I(null,"","garlic","cloves slivered, pushed into slits on the underside","produce"),I(null,"","shallots","halved, seasoned, as a bed under the pork","produce"),I(null,"","fresh thyme","","produce",1),I(2,"tbsp","homemade apple butter","glaze","pantry"),I(1,"tbsp","tarragon dijon mustard","glaze","pantry"),I(1,"tsp","apple cider vinegar","glaze","pantry"),I(null,"","black pepper","","spices"),I(null,"","salt","small pinch in glaze","spices")],
@@ -405,10 +416,7 @@ recipes:[
 {id:"rp2",title:"Roasted apples and caramelized shallots",source:"",servings:4,target:4,mode:"dayof",activeMin:5,totalMin:40,ovenTempF:375,state:"Served",
  ingredients:[I(null,"","fresh apples","cut into wedges","produce"),I(null,"","shallots","from the bed under the pork","produce")],
  steps:["The shallots roast under the pork the whole time.","Add the apple wedges around the pork for the final part of roasting."],makeAhead:"",finish:"",hold:"Holds warm in the pan while the pork rests.",temps:[],changes:[]},
-{id:"rp3",title:"Yorkshire puddings",source:"",servings:4,target:4,mode:"dayof",activeMin:10,totalMin:35,ovenTempF:425,state:"Served",
- ingredients:[I(3,"","eggs","standard ratio; adjust to your recipe","dairy & eggs"),I(1,"cup","all-purpose flour","","pantry"),I(1,"cup","milk","","dairy & eggs"),I(null,"","fat or oil","for the muffin tin","pantry")],
- steps:["Make the batter ahead and let it rest.","Grease the muffin tin. Put it in the oven when the pork reaches 130–135°F so the fat gets properly hot.","When the pork comes out at 145°F, raise the oven to 425°F.","Once the fat is very hot, pour in the batter.","Bake 20–25 minutes without opening the oven."],
- makeAhead:"Batter can rest for an hour or more.",finish:"Serve straight from the oven.",hold:"Doesn't hold; time them to come out last.",temps:[],
+{id:"rp3",...JSON.parse(JSON.stringify(SAGE_YP)),source:"",target:12,mode:"dayof",state:"Served",temps:[],
  changes:[{at:"",what:"Tin goes in before the pork comes out, because the fat has not been hot enough before."}]},
 {id:"rp4",title:"Creamy Jean-Georges-style mashed potatoes",source:"",servings:4,target:4,mode:"dayof",activeMin:15,totalMin:40,ovenTempF:null,state:"Served",
  ingredients:[I(null,"","potatoes","","produce"),I(null,"","butter","","dairy & eggs"),I(null,"","cream","warm","dairy & eggs"),I(null,"","salt","","spices")],
@@ -566,16 +574,24 @@ function seed(db){
     const m=db.meals.find(x=>!x.sample&&/thanksgiving/i.test(x.meal.name||"")&&/^2026-11/.test(x.meal.serveAt||""));
     const yp=ROAST.recipes.find(r=>r.id==="rp3");
     const yorkie=()=>({...JSON.parse(JSON.stringify(yp)),id:uid(),state:"",temps:[],changes:[],course:"Side",
-      notes:"From the Sunday roast. The batter amounts are a standard ratio; swap in your own if they differ.",
-      steps:["Make the batter ahead and let it rest.","Grease the muffin tin and put it in the oven while it heats, before the roast comes out, so the fat gets properly hot.","Once the roast is out, raise the oven to 425°F.","When the fat is very hot, pour in the batter.","Bake 20–25 minutes without opening the oven."],
-      changes:[{at:"",what:"Tin goes in early because the fat hasn't been hot enough before."}]});
+      changes:[]});
     if(m){
       const url="https://cooking.nytimes.com/recipes/543-roast-spatchcock-turkey";
       if(!m.recipes.some(r=>r.source===url))m.recipes.unshift({...BR({id:uid(),title:"Roast spatchcock turkey",course:"Main course",source:url,servings:+m.meal.guests||8,ingredients:[],steps:[]}),targetTempF:165,target:+m.meal.guests||8});
       if(!m.recipes.some(r=>/yorkshire/i.test(r.title)))m.recipes.push({...yorkie(),target:+m.meal.guests||yp.servings});
     }
-    if(!db.bank.some(b=>/yorkshire/i.test(b.title)))db.bank.push({...yorkie(),course:"Side"});
     db.seeded.tg26b=1;
+  }
+  if(!db.seeded.sageyp){
+    const fresh=()=>JSON.parse(JSON.stringify(SAGE_YP));
+    db.bank=db.bank.filter(b=>!(/yorkshire/i.test(b.title)&&/standard ratio/i.test(b.notes||"")));
+    if(!db.bank.some(b=>b.id==="b-sageyp"))db.bank.push({...BR({id:"b-sageyp",course:"Side",...fresh()})});
+    for(const m of db.meals)for(const r of m.recipes)if(/yorkshire/i.test(r.title)&&(/standard ratio/i.test(r.notes||"")||r.ingredients.some(i=>/standard ratio/i.test(i.note||"")))){
+      const f=fresh();Object.assign(r,{title:f.title,ingredients:f.ingredients,steps:f.steps,servings:f.servings,activeMin:f.activeMin,totalMin:f.totalMin,ovenTempF:f.ovenTempF,makeAhead:f.makeAhead,finish:f.finish,hold:f.hold,notes:f.notes});
+      if(m.done&&!r.target)r.target=f.servings;
+    }
+    const sr=db.meals.find(m=>m.id==="sunday-roast-pork");if(sr&&!sr.meal.when)sr.meal.when="November 8, 2026";
+    db.seeded.sageyp=1;
   }
   if(!db.seeded.roast){db.meals.push(JSON.parse(JSON.stringify(ROAST)));db.seeded.roast=1}
   if(!db.seeded.notes){for(const n of ROAST_NOTES)if(!db.prefs.notes.includes(n))db.prefs.notes.push(n);
