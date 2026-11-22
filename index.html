@@ -225,6 +225,15 @@ details.knotes summary{padding:16px 0;font:800 18px Archivo,sans-serif;color:var
 body.home header,body.home nav,body.home main,body.party header,body.party nav,body.party main{display:none}
 body:not(.home) #home{display:none}
 body:not(.party) #party{display:none}
+body.rec header,body.rec nav,body.rec main{display:none}
+body:not(.rec) #rec{display:none}
+#rec{padding-top:32px;padding-bottom:60px}
+.recgrid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,1fr);gap:28px}
+@media(max-width:800px){.recgrid{grid-template-columns:1fr}}
+.ctag{font:700 12px Archivo,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--tom)}
+#bankCards .btile{background:#fff;border:1px solid var(--line);min-height:100px}
+#bankCards .btile::before{background:var(--tom)}
+#bankCards .btile:nth-child(even)::before{background:var(--saf)}
 @media(max-width:600px){.settings{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.settings label:first-child{grid-column:1/-1}.task{grid-template-columns:4.4em minmax(0,1fr) auto;gap:10px}.task .tm{font-size:17px}}
 </style>
 </head>
@@ -243,12 +252,16 @@ body:not(.party) #party{display:none}
   </div>
   <h2 class="htitle" id="recentTitle">Pick up a recent meal</h2>
   <div class="meals" id="mealCards"></div>
+  <h2 class="htitle" style="margin-top:30px;color:var(--tom)">Recipe bank</h2>
+  <p class="hint" style="margin:-6px 0 12px">Recipes you love, ready to drop into any meal.</p>
+  <div class="meals" id="bankCards"></div>
   <details class="knotes"><summary>Kitchen notes</summary>
     <p class="hint" style="margin-top:0">What Mise remembers about how you cook. It uses these in every plan and while you cook. Edit or delete anything.</p>
     <div class="notes-ed" id="notesEd"></div>
   </details>
 </section>
 <section id="party" class="wide"><div id="partyBody"></div></section>
+<section id="rec" class="wide"><div id="recBody"></div></section>
 <header><div class="wrap">
   <div class="topbar"><a href="#meals">← All meals</a><button data-act="delmeal">Delete meal</button></div>
   <input class="mealname" id="mealName" aria-label="Meal name" value="">
@@ -404,11 +417,79 @@ live:{status:"done",equipment:"Oven (Bake, Convection Bake, Convection Roast), I
  {at:"",text:"Dinner served around 6:15–6:25 PM."}],
  reflection:{worked:"",change:""}}};
 
+/* recipe bank seeds: Jenna's own recipes */
+const BR=(o)=>({id:o.id,title:o.title,course:o.course||"",source:o.source||"",servings:o.servings||4,target:o.servings||4,mode:"dayof",
+  activeMin:o.activeMin||0,totalMin:o.totalMin||0,ovenTempF:o.ovenTempF||null,targetTempF:null,ingredients:o.ingredients,steps:o.steps,
+  makeAhead:o.makeAhead||"",finish:o.finish||"",hold:o.hold||"",notes:o.notes||"",state:"",temps:[],changes:[]});
+const BANK_SEED=[
+BR({id:"b-chocpie",title:"Chocolate cream pie with salted olive oil whipped cream",course:"Dessert",servings:8,activeMin:45,totalMin:200,ovenTempF:325,
+ ingredients:[I(14,"","graham crackers","or a store-bought crust, toasted at 325°F for 12–15 min","bakery"),I(0.25,"cup","sugar","crust","pantry"),I(6,"tbsp","salted butter","melted","dairy & eggs"),
+  I(0.75,"cup","63% dark chocolate chips","4 oz","pantry"),I(1.5,"tsp","vanilla bean paste","","pantry"),I(1.333,"cup","sugar","filling","pantry"),I(0.75,"tsp","kosher salt","filling","spices"),
+  I(0.5,"cup","dutch cocoa powder","","pantry"),I(0.333,"cup","cornstarch","","pantry"),I(8,"","egg yolks","from 8 large eggs, just under ½ cup","dairy & eggs"),I(3,"cup","whole milk","","dairy & eggs"),
+  I(1.5,"cup","heavy whipping cream","","dairy & eggs"),I(8,"oz","mascarpone","","dairy & eggs"),I(1,"tbsp","fruity olive oil","the best you have","pantry"),I(0.5,"cup","sugar","topping","pantry"),I(0.5,"tsp","kosher salt","topping","spices")],
+ steps:["Crust: heat the oven to 325°F. Pulse [[0]] graham crackers with [[1]] sugar until finely ground but not powdery, add [[2]] melted salted butter and pulse to wet sand.",
+  "Press into a 9-inch pie plate, across the bottom and two-thirds up the sides. Freeze 20 minutes, then bake 12–15 minutes until the edges lightly brown. Cool completely.",
+  "Filling: put [[3]] chocolate chips and [[4]] vanilla bean paste in a medium bowl and set a fine sieve over it.",
+  "In a 3-quart stainless pot, whisk [[5]] sugar, [[6]] kosher salt, [[7]] cocoa and [[8]] cornstarch. Whisk in [[9]] egg yolks and about [[10:0.5]] milk until smooth, then the remaining [[10:2.5]] milk.",
+  "Cook over medium-low, whisking the whole time, until hot to the touch, about 6 minutes. Raise to medium and keep whisking until thick and bubbling, about 5 minutes. From the first bubble, whisk exactly 90 seconds, then take it off the burner.",
+  "Immediately press it through the sieve onto the chocolate, then whisk until the chocolate has melted in.",
+  "Pour into the cooled crust, smooth the top, press plastic wrap onto the surface and chill at least 2 hours.",
+  "Topping: whip [[11]] cream with [[14]] sugar to soft peaks. Loosen [[12]] mascarpone and slowly whisk in [[13]] olive oil. Add it to the cream with [[15]] kosher salt and mix on medium until stiff. Chill.",
+  "Peel off the plastic, spread on the topping and chill 30 minutes (up to 8 hours). Cut with a knife dipped in hot water, wiping it between slices."],
+ makeAhead:"Crust and filling ahead; the filling needs at least 2 hours to chill. Topped pie holds up to 8 hours in the fridge.",finish:"Slice with a hot, dry knife.",hold:"Serve cold."}),
+BR({id:"b-lemonpie",title:"Lemon ice box pie with rosemary crust",course:"Dessert",servings:8,activeMin:35,totalMin:480,ovenTempF:325,
+ ingredients:[I(14,"","graham cracker sheets","","bakery"),I(0.25,"cup","granulated sugar","","pantry"),I(0.25,"tsp","kosher salt","skip if using salted butter","spices"),I(8,"tbsp","unsalted butter","melted","dairy & eggs"),
+  I(1,"tbsp","dried rosemary","","spices"),I(2,"can","sweetened condensed milk","14 oz cans","pantry"),I(2,"tbsp","lemon zest","","produce"),I(1.25,"cup","lemon juice","strained","produce"),
+  I(8,"","egg yolks","large, about ½ cup","dairy & eggs"),I(2,"cup","heavy cream","","dairy & eggs"),I(1,"tsp","vanilla bean paste","","pantry")],
+ steps:["Heat the oven to 325°F. Pulse [[0]] graham crackers, [[1]] sugar, [[2]] salt and [[4]] dried rosemary in a food processor; add [[3]] melted butter and pulse until just combined.",
+  "Press firmly into the bottom and up the sides of a 9-inch deep pie pan, or a springform for higher sides.",
+  "Whisk [[5]] condensed milk with [[7]] lemon juice in a large bowl.",
+  "Beat [[8]] egg yolks with [[6]] lemon zest until pale, about 8 minutes.",
+  "Gently whisk the yolks into the condensed milk by hand until smooth. Don't do this in the stand mixer; overmixing stops it setting.",
+  "Pour into the crust and bake 25–35 minutes, until the edges are set (closer to 35 in a springform). Don't overbake.",
+  "Cool on a rack for 1 hour, cover loosely and chill at least 6 hours or overnight.",
+  "Once fully chilled, whip [[9]] cream with [[10]] vanilla bean paste to soft peaks and spread it on top."],
+ makeAhead:"Bake the day before; it needs at least 6 hours to chill.",finish:"Whip and spread the cream once the pie is cold.",hold:"Keep chilled."}),
+BR({id:"b-peapasta",title:"Mushy pea pasta",course:"Main course",servings:4,activeMin:30,totalMin:30,
+ ingredients:[I(4,"tbsp","butter","","dairy & eggs"),I(3,"","leeks","sliced","produce"),I(1,"","shallot","sliced","produce"),I(null,"","garlic","","produce"),
+  I(null,"","frozen peas","thawed","frozen"),I(1,"cup","heavy cream","about","dairy & eggs"),I(1,"","lemon","juiced","produce"),I(null,"","fresh mint","a handful, plus more to finish","produce",1),
+  I(null,"","pecorino","grated","dairy & eggs"),I(null,"","olive oil","a dash if it's dry","pantry"),I(null,"","chives","to finish","produce",1),I(null,"","fusilli","or pasta of choice","pantry"),I(null,"","black pepper","","spices")],
+ steps:["In a cast iron pot over medium-low, lightly brown [[0]] butter. Add [[1]] leeks and cook 1–2 minutes, then add [[2]] shallot and cook about 8 minutes until they take on some color.",
+  "Add [[3]] garlic and cook a couple of minutes. Turn off the heat and add [[12]] pepper.",
+  "Cook the [[11]] pasta.",
+  "In a blender, add [[4]] thawed peas, half the leek mixture, [[5]] heavy cream, the juice of [[6]] lemon and a handful of [[7]] mint. Pulse a few times until rough, add [[8]] pecorino and pulse a couple more times. Add a dash of [[9]] olive oil if it's dry.",
+  "Add the drained pasta to the leek pot and stir it through the remaining leeks. Stir in the pea sauce and get it out of the pot right away so the peas don't turn brown.",
+  "Turn into a serving dish and top with mint and [[10]] chives."],
+ finish:"Pea sauce goes in at the very end, then straight out of the pot.",hold:"Serve right away; the peas brown if held hot."})];
+
+/* Christmas 2024: the menu from Jenna's notes; recipes to fill in or load from their links */
+const XD=(title,course,o={})=>BR({id:"x-"+title.toLowerCase().replace(/[^a-z]+/g,"-"),title,course,servings:o.servings||8,ingredients:o.ingredients||[],steps:o.steps||[],source:o.source||"",notes:o.notes||""});
+const XMAS={id:"christmas-2024",done:true,
+meal:{name:"Christmas 2024",when:"December 2024",serveAt:"",guests:"",ovens:1,busy:""},checks:{},plan:null,
+recipes:[
+ {...XD("Ham","Main course"),state:"Served"},
+ {...XD("Ham sauce","Sauce"),state:"Served"},
+ {...XD("Cauliflower cheese","Side"),state:"Served"},
+ {...XD("Parsnips","Side"),state:"Served"},
+ {...XD("Mashed potatoes","Side"),state:"Served"},
+ {...XD("Carrots","Side"),state:"Served"},
+ {...XD("Blanched French green beans","Side"),state:"Served"},
+ {...XD("Sage and onion stuffing balls","Side",{source:"https://www.bbc.co.uk/food/recipes/sage_onion_and_sausage_33868"}),state:"Served"},
+ {...XD("Pigs in blankets, double wrapped","Side"),state:"Served"},
+ {...XD("Pork and cranberry stuffing parcels","Side"),state:"Served"},
+ {...XD("Pear and prosciutto salad","Salad",{source:"https://www.bbcgoodfood.com/recipes/poached-pears-spiced-red-wine",
+   notes:"Inspired by Monarque in Montréal. The link is for the wine-poached pears.",
+   ingredients:[I(null,"","pears","poached in spiced red wine (see link)","produce"),I(null,"","prosciutto","","meat & seafood"),I(null,"","baby romaine","","produce",1),
+    I(null,"","radicchio","","produce",1),I(null,"","castelfranco radicchio","","produce",1),I(null,"","treviso","","produce",1),I(null,"","endive","","produce",1),
+    I(null,"","chives","","produce",1),I(null,"","almonds","","pantry"),I(null,"","sherry vinaigrette","","pantry")],
+   steps:["Poach the pears in spiced red wine (see the linked recipe) and let them cool.","Toss the romaine, radicchios, treviso and endive with sherry vinaigrette.","Top with sliced poached pears, prosciutto, almonds and chives."]}),state:"Served"}],
+live:{status:"done",events:[],tasks:[],chat:[],reminders:[],appliances:[],suggest:[],reflection:{worked:"",change:""}}};
+
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9);
-const VIEWS=["meals","party","recipes","shopping","prep","cook"];
+const VIEWS=["meals","party","rec","recipes","shopping","prep","cook"];
 const blankMeal=()=>normMeal({id:uid(),meal:{name:"",serveAt:"",guests:"",ovens:1,busy:""},recipes:[],plan:null,checks:{}});
 const sampleMeal=()=>normMeal({...JSON.parse(JSON.stringify(SAMPLE)),id:"sample"});
 
@@ -416,7 +497,7 @@ const sampleMeal=()=>normMeal({...JSON.parse(JSON.stringify(SAMPLE)),id:"sample"
 let DB=seed(load());
 let S=DB.meals.find(m=>m.id===DB.cur)||null;
 let view=(location.hash||"").slice(1);
-if(!VIEWS.includes(view)||(!S&&!["meals","party"].includes(view)))view="meals";
+if(!VIEWS.includes(view)||(!S&&!["meals","party","rec"].includes(view)))view="meals";
 
 function load(){
   try{
@@ -430,6 +511,9 @@ function load(){
 function seed(db){
   db.prefs=db.prefs||{notes:[],equipment:"",speak:false};
   db.seeded=db.seeded||{};
+  db.bank=db.bank||[];
+  if(!db.seeded.bank){for(const r of BANK_SEED)if(!db.bank.some(b=>b.id===r.id))db.bank.push(JSON.parse(JSON.stringify(r)));db.seeded.bank=1}
+  if(!db.seeded.xmas24){db.meals.push(JSON.parse(JSON.stringify(XMAS)));db.seeded.xmas24=1}
   if(!db.seeded.roast){db.meals.push(JSON.parse(JSON.stringify(ROAST)));db.seeded.roast=1}
   if(!db.seeded.notes){for(const n of ROAST_NOTES)if(!db.prefs.notes.includes(n))db.prefs.notes.push(n);
     if(!db.prefs.equipment)db.prefs.equipment=ROAST.live.equipment;db.seeded.notes=1}
@@ -515,14 +599,16 @@ function renderHome(){
     const date=m.meal.serveAt?new Date(m.meal.serveAt).toLocaleDateString([], {weekday:"short",month:"short",day:"numeric",year:"numeric"}):"No date yet";
     const when=t===Infinity?"":past?"":days<=1?`<span class="soon">${days<=0?"Today":"Tomorrow"}</span>`:days<=14?`<span class="soon">In ${days} days</span>`:"";
     const n=m.recipes.filter(r=>!r.removed).length,cooking=m.live&&m.live.status==="cooking";
-    return `<button class="mcard${past||m.done?" past":""}" data-open="${esc(m.id)}"><b>${esc(m.meal.name||"Untitled meal")}</b><span>${m.done&&!m.meal.serveAt?"Cooked":date}</span><span>${n} ${m.done?"dish":"recipe"}${n===1?"":"es".slice(m.done?0:1)}${m.sample?" · sample":""}</span>${cooking?`<span class="soon">Cooking now</span>`:m.done?"":when}</button>`;
+    return `<button class="mcard${past||m.done?" past":""}" data-open="${esc(m.id)}"><b>${esc(m.meal.name||"Untitled meal")}</b><span>${m.done&&!m.meal.serveAt?(m.meal.when||"Cooked"):date}</span><span>${n} ${m.done?"dish":"recipe"}${n===1?"":"es".slice(m.done?0:1)}${m.sample?" · sample":""}</span>${cooking?`<span class="soon">Cooking now</span>`:m.done?"":when}</button>`;
   }).join("")||`<p class="hint">Your meals will show up here.</p>`;
 }
 function render(){
   document.body.classList.toggle("home",view==="meals");
   document.body.classList.toggle("party",view==="party");
+  document.body.classList.toggle("rec",view==="rec");
   if(view==="party"){$("cmd").hidden=true;renderParty();return}
-  if(view==="meals"){$("cmd").hidden=true;document.body.classList.remove("cooking");renderHome();renderNotes();return}
+  if(view==="rec"){$("cmd").hidden=true;renderRec();return}
+  if(view==="meals"){$("cmd").hidden=true;document.body.classList.remove("cooking");renderHome();renderBankTiles();renderNotes();return}
   $("mealName").value=S.meal.name||"";
   $("serveAt").value=S.meal.serveAt||"";
   $("guests").value=S.meal.guests||"";
@@ -554,9 +640,12 @@ function renderRecipes(){
           <button class="${r.mode==="ahead"?"on":""}" data-act="mode" data-m="ahead">Make ahead</button>
         </div>
         <label>Serves <input type="number" min="1" max="80" value="${r.target||r.servings||""}" data-act="target"></label>
+        <button class="rm" data-act="tobank">Save to bank</button>
         <button class="rm" data-act="rm">Remove</button>
       </div>
       ${r.mode==="ahead"&&r.makeAhead?`<p class="ahead">${esc(r.makeAhead)}</p>`:""}
+      ${r.notes?`<p class="ahead">${esc(r.notes)}</p>`:""}
+      ${!r.ingredients.length?(r.source?`<div class="row" style="margin:0"><button class="ghost" data-act="loadlink">Load recipe from link</button><span class="status" id="ll-${r.id}" style="margin:0"></span></div>`:`<p class="ahead">No recipe saved yet. Paste one above, or tell Mise how you make it.</p>`):""}
     </div>
     <details><summary>Ingredients and instructions</summary><div class="body">
       ${k!==1?`<p class="hint">Scaled from ${r.servings} to ${r.target} servings.</p>`:""}
@@ -671,7 +760,7 @@ function toRecipe(r,guests,course,src){
   return {id:uid(),title:r.title||"Untitled recipe",course:course||r.course||"",source:r.source||src||"",
     servings:+r.servings||+guests||4,target:+guests||+r.servings||4,mode:"dayof",activeMin:+r.activeMin||0,totalMin:+r.totalMin||0,ovenTempF:+r.ovenTempF||null,
     ingredients:Array.isArray(r.ingredients)?r.ingredients:[],steps:Array.isArray(r.steps)?r.steps:[],makeAhead:r.makeAhead||"",finish:r.finish||"",hold:r.hold||"",
-    targetTempF:+r.targetTempF||null,state:"",temps:[],changes:[],generated:!!r.generated};
+    targetTempF:+r.targetTempF||null,notes:r.notes||"",state:"",temps:[],changes:[],generated:!!r.generated};
 }
 async function addRecipes(){
   const txt=$("src").value.trim(),files=[...$("photo").files];
@@ -1030,7 +1119,8 @@ function renderParty(){
       <div class="ch"><input class="clabel" data-clabel="${c.id}" value="${esc(c.label)}" aria-label="Course name"><button class="rm" data-crm="${c.id}" aria-label="Remove course">✕</button></div>
       ${c.recipe?`<div class="sugg"><b>${esc(c.recipe.title)}</b>${esc(c.why||"")}<div class="row" style="margin-top:6px"><button class="ghost" data-csug="${c.id}" style="min-height:36px;font-size:13px">Try another</button><button class="rm" data-cclear="${c.id}">Use my own recipe</button></div></div>`
         :d.mode==="links"?`<textarea data-csrc="${c.id}" placeholder="Recipe link or text">${esc(c.src)}</textarea>
-      <div><button class="ghost" data-csug="${c.id}" style="min-height:38px;font-size:14px" ${busy?"disabled":""}>Suggest a dish</button></div>`:`<p class="hint" style="margin:0">Mise will pick this one.</p>`}
+      <div class="row" style="margin:0"><button class="ghost" data-csug="${c.id}" style="min-height:38px;font-size:14px" ${busy?"disabled":""}>Suggest a dish</button>
+      ${BANK().length?`<select data-cbank="${c.id}" aria-label="Pick from your recipe bank" style="flex:1;font:14px 'Public Sans',system-ui,sans-serif;padding:8px;border-radius:10px;border:1px solid var(--line);min-height:38px;background:#fff"><option value="">From my recipes…</option>${BANK().map(b=>`<option value="${esc(b.id)}">${esc(b.title)}</option>`).join("")}</select>`:""}</div>`:`<p class="hint" style="margin:0">Mise will pick this one.</p>`}
     </div>`).join("")}</div>
     <div class="addc"><span class="hint" style="align-self:center;margin:0">Add a course:</span>${[...new Set(MORE_COURSES)].map(l=>`<button data-cadd="${esc(l)}">+ ${esc(l)}</button>`).join("")}</div>
     <div class="row"><button data-act="${d.mode==="surprise"?"party-gen":"party-build"}" ${busy?"disabled":""}>${busy?'<span class="spin"></span> Working…':d.mode==="surprise"?"Create my dinner party":"Build my dinner party"}</button><span class="status" id="partyStatus" style="margin:0"></span></div>`;
@@ -1097,11 +1187,93 @@ Return JSON only: {"name":a short evocative menu name,"recipes":[one recipe per 
   }catch(e){partyBusy=false;renderParty();status("partyStatus",e.code==="rate_limited"?"Too many requests just now. Try again in a minute.":(e.message||"Couldn't create the menu."),1)}
 }
 
+/* ---------- recipe bank ---------- */
+const BANK=()=>DB.bank;
+const cloneRecipe=(r,guests)=>({...JSON.parse(JSON.stringify(r)),id:uid(),target:+guests||r.servings||4,state:"",temps:[],changes:[],original:null,bankId:r.bankId||r.id});
+function saveToBank(r){
+  const same=BANK().find(b=>norm(b.title)===norm(r.title));
+  const copy={...JSON.parse(JSON.stringify(r)),id:same?same.id:uid(),state:"",temps:[],changes:[],original:null,target:r.servings};
+  if(same)BANK()[BANK().indexOf(same)]=copy;else BANK().push(copy);
+  save();toast(same?`Updated “${r.title}” in your recipe bank.`:`Saved “${r.title}” to your recipe bank.`);
+}
+function openRec(id){DB.openRec=id;save();go("rec")}
+/* fill a recipe that has only a link */
+async function loadFromLink(r,statusId){
+  status(statusId,"Opening the recipe page…");
+  try{
+    const out=await claude.json(EXTRACT+"\n\nINPUT:\n"+r.source,{modelTier:"default",urls:[r.source]});
+    if(out&&out.error==="need_text")throw {message:"That site wouldn't let Mise read it. Copy the recipe text and paste it in instead."};
+    const x=(out&&out.recipes||[])[0];if(!x)throw {message:"No recipe found on that page."};
+    const n=toRecipe(x,r.target,r.course,r.source);
+    for(const k of ["ingredients","steps","servings","activeMin","totalMin","ovenTempF","targetTempF","makeAhead","finish","hold"])if(n[k]!=null&&!(Array.isArray(n[k])&&!n[k].length))r[k]=n[k];
+    if(!r.target)r.target=n.servings;
+    save();status(statusId,"");return true;
+  }catch(e){status(statusId,e.message||"Couldn't load it.",1);return false}
+}
+function renderBankTiles(){
+  $("bankCards").innerHTML=BANK().map(r=>`<button class="mcard btile" data-rec="${esc(r.id)}"><span class="ctag">${esc(r.course||"Recipe")}</span><b>${esc(r.title)}</b><span>${r.totalMin?mins(r.totalMin):""}${r.servings?` · serves ${r.servings}`:""}</span></button>`).join("")
+    +`<button class="mcard new" data-act="bank-new">+ Add a recipe</button>`;
+}
+function renderRec(){
+  const el=$("recBody"),id=DB.openRec;
+  if(id==="new"){
+    el.innerHTML=`<a href="#meals" class="hint" style="text-decoration:none">← Back</a>
+      <h1 class="brand" style="font-size:clamp(34px,5vw,56px);margin:10px 0 14px">Add to your recipe bank</h1>
+      <div class="adder" style="max-width:820px"><textarea id="bankSrc" placeholder="Paste a recipe link, the recipe text, or several recipes from your notes"></textarea>
+      <div class="row"><button data-act="bank-save">Save recipe</button></div><div class="status" id="bankStatus"></div></div>`;
+    return;
+  }
+  const r=BANK().find(b=>b.id===id);if(!r){go("meals");return}
+  const k=1,meals=DB.meals.filter(m=>!m.done&&!m.sample);
+  el.innerHTML=`<a href="#meals" class="hint" style="text-decoration:none">← Back</a>
+    <div class="ctag" style="margin-top:14px">${esc(r.course||"Recipe")}</div>
+    <h1 class="brand" style="font-size:clamp(30px,4.6vw,52px);margin:4px 0 8px">${esc(r.title)}</h1>
+    <div class="meta" style="margin-bottom:14px">${r.servings?`<span>Serves ${r.servings}</span>`:""}${r.totalMin?`<span>${mins(r.totalMin)} total</span>`:""}${r.activeMin?`<span>${mins(r.activeMin)} hands-on</span>`:""}${r.ovenTempF?`<span>${r.ovenTempF}°F oven</span>`:""}${r.source?`<a href="${esc(r.source)}" target="_blank" rel="noopener">Source</a>`:""}</div>
+    <div class="recgrid">
+      <div class="body" style="padding:0">
+        ${r.notes?`<p class="hint">${esc(r.notes)}</p>`:""}
+        ${r.ingredients.length?`<h4>Ingredients</h4><ul>${r.ingredients.map(i=>`<li>${i.qty!=null?`<b>${fq(i.qty)}${i.unit?" "+esc(i.unit):""}</b> `:""}${esc(i.item)}${i.note?", "+esc(i.note):""}</li>`).join("")}</ul>`:`<p class="hint">No ingredients saved yet.</p>`}
+        ${r.steps.length?`<h4>Steps</h4><ol>${r.steps.map(s=>`<li>${stepHTML(r,s,k)}</li>`).join("")}</ol>`:""}
+        <div class="notes">${r.makeAhead?`<p><b>Ahead:</b> ${esc(r.makeAhead)}</p>`:""}${r.finish?`<p><b>Last minute:</b> ${esc(r.finish)}</p>`:""}${r.hold?`<p><b>Holding:</b> ${esc(r.hold)}</p>`:""}</div>
+      </div>
+      <div class="adder" style="align-self:start">
+        <h3 style="font-size:18px;margin-bottom:8px">Add to a meal</h3>
+        <select id="recMeal" style="width:100%;font:16px 'Public Sans',system-ui,sans-serif;padding:10px;border-radius:10px;border:1px solid var(--line);min-height:44px">
+          <option value="__new">A new meal</option>${meals.map(m=>`<option value="${esc(m.id)}">${esc(m.meal.name||"Untitled meal")}</option>`).join("")}</select>
+        <div class="row"><button data-act="rec-add">Add</button>
+        ${r.source&&!r.ingredients.length?`<button class="ghost" data-act="rec-load">Load recipe from link</button>`:""}
+        <button class="rm" data-act="rec-del">Delete</button></div>
+        <div class="status" id="recStatus"></div>
+      </div>
+    </div>`;
+}
+async function bankSave(){
+  const txt=$("bankSrc").value.trim();if(!txt){status("bankStatus","Paste a link or recipe first.",1);return}
+  const urls=(txt.match(/https?:\/\/[^\s<>"')]+/g)||[]).slice(0,6);
+  status("bankStatus",urls.length?"Opening the recipe page…":"Reading the recipe…");
+  try{
+    const out=await claude.json(EXTRACT+"\n\nINPUT:\n"+txt,{modelTier:"default",urls});
+    if(out&&out.error==="need_text")throw {message:"That site wouldn't let Mise read it. Copy the recipe text and paste it here."};
+    const rs=(out&&out.recipes)||[];if(!rs.length)throw {message:"No recipe found in that."};
+    const added=rs.map(x=>toRecipe(x,x.servings,"",urls.length===1?urls[0]:""));
+    for(const r of added)BANK().push(r);save();openRec(added[0].id);
+  }catch(e){status("bankStatus",e.message||"Couldn't save it.",1)}
+}
+
 /* ---------- events ---------- */
 document.addEventListener("click",e=>{
   const a=e.target.closest("[data-act]");if(!a)return;
   const act=a.dataset.act,card=a.closest(".ticket"),r=card&&S.recipes.find(x=>x.id===card.dataset.id);
   if(act==="mode"&&r){r.mode=a.dataset.m;S.sample=false;save();render()}
+  else if(act==="tobank"&&r)saveToBank(r);
+  else if(act==="loadlink"&&r){a.disabled=true;loadFromLink(r,"ll-"+r.id).then(ok=>{a.disabled=false;if(ok)render()})}
+  else if(act==="bank-new")openRec("new");
+  else if(act==="bank-save")bankSave();
+  else if(act==="rec-add"){const b=BANK().find(x=>x.id===DB.openRec),v=$("recMeal").value;if(!b)return;
+    let m=DB.meals.find(x=>x.id===v);if(!m){m=blankMeal();DB.meals.push(m)}
+    m.recipes.push(cloneRecipe(b,m.meal.guests));save();openMeal(m)}
+  else if(act==="rec-load"){const b=BANK().find(x=>x.id===DB.openRec);if(b){a.disabled=true;loadFromLink(b,"recStatus").then(()=>renderRec())}}
+  else if(act==="rec-del"){const b=BANK().find(x=>x.id===DB.openRec);if(b&&confirm(`Delete “${b.title}” from your recipe bank?`)){DB.bank=BANK().filter(x=>x!==b);save();go("meals")}}
   else if(act==="rm"&&r){S.recipes=S.recipes.filter(x=>x!==r);save();render()}
   else if(act==="clear"){swapMeal(blankMeal());save();render();$("mealName").focus()}
   else if(act==="plan")buildPlan();
@@ -1159,9 +1331,12 @@ $("sendBtn").addEventListener("click",()=>{const t=$("say").value;$("say").value
 $("say").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("sendBtn").click()}});
 $("mic").addEventListener("click",toggleMic);
 $("cmdPhoto").addEventListener("change",async()=>{const f=[...$("cmdPhoto").files];$("cmdPhoto").value="";if(!f.length)return;const t=$("say").value;$("say").value="";liveSend(t||"What can you tell from this photo, for what I'm cooking right now?",f)});
+document.addEventListener("click",e=>{const c=e.target.closest("[data-rec]");if(c)openRec(c.dataset.rec)});
 document.addEventListener("click",e=>{const c=e.target.closest("[data-open]");if(!c)return;const m=DB.meals.find(x=>x.id===c.dataset.open);if(m)openMeal(m)});
 document.addEventListener("change",e=>{
   const t=e.target;
+  if(t.dataset.cbank&&t.value){const d=D(),c=d&&d.courses.find(x=>x.id===t.dataset.cbank),b=BANK().find(x=>x.id===t.value);
+    if(c&&b){c.recipe=JSON.parse(JSON.stringify(b));c.why=" From your recipe bank.";c.src="";save();renderParty()}return}
   if(t.dataset.act==="speak"){DB.prefs.speak=t.checked;save();if(t.checked)speak("I'll read replies aloud.");return}
   if(t.dataset.task){const k=S.live.tasks.find(x=>x.id===t.dataset.task);if(k){k.done=true;addEvent("Done: "+k.what,k.dish);guardDishes();save();setTimeout(renderCook,250)}return}
   if(t.dataset.ck){S.checks[t.dataset.ck]=t.checked;if(!t.checked)delete S.checks[t.dataset.ck];save();render();return}
@@ -1178,7 +1353,7 @@ $("copyShop").addEventListener("click",async()=>{
   try{await navigator.clipboard.writeText(txt);$("copyShop").textContent="Copied"}catch(err){$("copyShop").textContent="Couldn't copy"}
   setTimeout(()=>$("copyShop").textContent="Copy list",1600);
 });
-window.addEventListener("hashchange",()=>{view=(location.hash||"").slice(1);if(!VIEWS.includes(view)||(!S&&!["meals","party"].includes(view)))view="meals";render();scrollTo(0,0)});
+window.addEventListener("hashchange",()=>{view=(location.hash||"").slice(1);if(!VIEWS.includes(view)||(!S&&!["meals","party","rec"].includes(view)))view="meals";render();scrollTo(0,0)});
 setInterval(()=>{if(view==="meals")renderHome();else{countdown();if(view==="prep")renderPlan()}},60000);
 render();
 }
