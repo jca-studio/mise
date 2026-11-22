@@ -173,8 +173,7 @@ body.cooking main{padding-bottom:120px}
 .start i{font-style:normal;font:800 26px Archivo,sans-serif}
 .start:hover{transform:translateY(-1px)}
 .htitle{font:800 22px Archivo,sans-serif;margin:0 0 12px;color:var(--herb)}
-/* tablecloth stripe, leaf green on mint */
-.stripe{height:14px;border-radius:99px;margin:0 0 28px;background:repeating-linear-gradient(90deg,var(--herb) 0 22px,var(--fresh) 22px 44px)}
+#recentTitle{margin-top:8px}
 .meals{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
 details.knotes{margin-top:34px;border-top:1px solid var(--line)}
 details.knotes summary{padding:16px 0;font:800 18px Archivo,sans-serif;color:var(--cobalt)}
@@ -203,8 +202,16 @@ details.knotes summary{padding:16px 0;font:800 18px Archivo,sans-serif;color:var
 .meals{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
 .mcard{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;min-height:118px;padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;cursor:pointer;position:relative;overflow:hidden}
 .mcard::before{content:"";position:absolute;inset:0 auto 0 0;width:6px;background:var(--tom)}
-.mcard:nth-child(5n+2)::before{background:var(--herb)}.mcard:nth-child(5n+3)::before{background:var(--cobalt)}
-.mcard:nth-child(5n+4)::before{background:var(--saf)}.mcard:nth-child(5n+5)::before{background:var(--blush)}
+/* recent meal tiles alternate leaf green and cobalt */
+#mealCards .mcard{background:var(--fresh);border-color:transparent}
+#mealCards .mcard::before{background:var(--herb)}
+#mealCards .mcard:nth-child(even){background:var(--sky)}
+#mealCards .mcard:nth-child(even)::before{background:var(--cobalt)}
+#mealCards .mcard b{color:var(--herb)}
+#mealCards .mcard:nth-child(even) b{color:var(--cobalt)}
+#mealCards .mcard span{color:#4f5b55}
+#mealCards .mcard .soon{color:var(--tom)}
+#mealCards .mcard:hover{border-color:currentColor}
 .mcard:hover{border-color:var(--tom)}
 .mcard b{font:800 19px/1.15 Archivo,sans-serif}
 .mcard span{font-size:14px;color:var(--mute)}
@@ -234,7 +241,6 @@ body:not(.party) #party{display:none}
       <button class="start alt" data-act="party-surprise"><span><b>Surprise me</b><span>Tell Mise a protein or ingredients; it builds the menu</span></span><i>→</i></button>
     </div>
   </div>
-  <div class="stripe" aria-hidden="true"></div>
   <h2 class="htitle" id="recentTitle">Pick up a recent meal</h2>
   <div class="meals" id="mealCards"></div>
   <details class="knotes"><summary>Kitchen notes</summary>
