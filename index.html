@@ -32,7 +32,7 @@ header{background:linear-gradient(120deg,#e4532a 0%,#ec6b45 55%,#f08f78 100%);co
 nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
 nav .wrap{display:flex;gap:4px}
 nav a{flex:1;text-align:center;padding:14px 6px;color:var(--mute);text-decoration:none;font:700 15px Archivo,sans-serif;border-bottom:3px solid transparent}
-nav a.on{color:var(--ink);border-bottom-color:var(--tom)}
+nav a.on{color:var(--cobalt);border-bottom-color:var(--cobalt)}
 nav a small{font:600 12px "Public Sans";background:var(--panel);border-radius:99px;padding:1px 7px;margin-left:4px}
 main{padding:20px 0 60px}
 .view{display:none}.view.on{display:block}
@@ -40,7 +40,7 @@ main{padding:20px 0 60px}
 textarea{width:100%;min-height:110px;font:16px/1.45 "Public Sans",sans-serif;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);resize:vertical}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
 button,.btn{font:700 15px Archivo,sans-serif;min-height:44px;padding:0 18px;border-radius:12px;border:0;background:var(--tom);color:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-button.ghost,.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button.ghost,.btn.ghost{background:transparent;color:var(--cobalt);border:1px solid #c9d5f5}
 button:disabled{opacity:.5;cursor:wait}
 button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--saf);outline-offset:2px}
 input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
@@ -49,7 +49,8 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
 .hint{font-size:14px;color:var(--mute);margin:6px 0 0}
 .sample{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;color:var(--mute);border:1px dashed var(--line);border-radius:12px;padding:8px 12px;margin-bottom:16px}
 .sample button{min-height:36px;font-size:13px;padding:0 12px}
-.ticket{border:1px solid var(--line);border-radius:16px;margin-bottom:14px;background:var(--bg);overflow:hidden}
+.ticket{border:1px solid var(--line);border-left:6px solid var(--herb);border-radius:16px;margin-bottom:14px;background:var(--bg);overflow:hidden}
+.ticket:nth-child(even){border-left-color:var(--cobalt)}
 .ticket .top{padding:14px 16px;display:grid;gap:10px}
 .ticket h3{font-size:20px}
 .meta{font-size:14px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 14px}
@@ -74,9 +75,9 @@ summary{padding:12px 16px;cursor:pointer;font-weight:600;font-size:15px;min-heig
 .rm{background:none;color:var(--mute);font-size:13px;padding:0 4px;min-height:36px}
 .empty{text-align:center;color:var(--mute);padding:30px 10px}
 .listhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:8px 0 4px}
-.listhead h2{font-size:24px}
+.listhead h2{font-size:24px;color:var(--cobalt)}
 .when{font-size:14px;color:var(--mute);margin:0 0 10px}
-.aisle{font:700 13px Archivo,sans-serif;color:var(--mute);margin:16px 0 4px}
+.aisle{font:700 13px Archivo,sans-serif;color:var(--herb);margin:16px 0 4px;text-transform:uppercase;letter-spacing:.06em}
 .item{display:flex;gap:12px;align-items:flex-start;padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer}
 .item input{width:22px;height:22px;margin:2px 0 0;accent-color:var(--herb);flex:none}
 .item .q{font-weight:600;white-space:nowrap}
@@ -84,7 +85,8 @@ summary{padding:12px 16px;cursor:pointer;font-weight:600;font-size:15px;min-heig
 .item.done .t{text-decoration:line-through;color:var(--mute)}
 .freshtag{font-size:12px;font-weight:600;color:var(--herb);background:var(--fresh);border-radius:99px;padding:1px 8px;margin-left:6px;white-space:nowrap}
 .section{margin-bottom:30px}
-.day{margin:26px 0 8px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:2px solid var(--ink);padding-bottom:6px}
+.day{margin:26px 0 8px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:3px solid var(--cobalt);padding-bottom:6px}
+.day h3{color:var(--cobalt)}
 .day h3{font-size:21px}.day span{font-size:14px;color:var(--mute);white-space:nowrap}
 .task{display:grid;grid-template-columns:5.2em minmax(0,1fr) auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:start}
 .task .tm{font:800 19px/1.2 Archivo,sans-serif;white-space:nowrap}
@@ -105,9 +107,10 @@ summary{padding:12px 16px;cursor:pointer;font-weight:600;font-size:15px;min-heig
 @keyframes sp{to{transform:rotate(1turn)}}
 @media(prefers-reduced-motion:reduce){.spin{animation:none}}
 /* live cooking */
-.sec{font:800 12px Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:24px 0 8px}
+.sec{font:800 12px Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--herb);margin:24px 0 8px}
 .times{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
-.tbox{background:var(--panel);border-radius:14px;padding:12px 14px}
+.tbox{background:var(--sky);border-radius:14px;padding:12px 14px}
+.tbox b{color:var(--cobalt)}
 .tbox small{display:block;font-size:13px;color:var(--mute)}
 .tbox b{font:800 26px/1.15 Archivo,sans-serif}
 .tbox.late b{color:var(--tom)}
@@ -169,10 +172,12 @@ body.cooking main{padding-bottom:120px}
 .start span{font-size:15px;opacity:.85}
 .start i{font-style:normal;font:800 26px Archivo,sans-serif}
 .start:hover{transform:translateY(-1px)}
-.htitle{font:800 22px Archivo,sans-serif;margin:0 0 12px}
+.htitle{font:800 22px Archivo,sans-serif;margin:0 0 12px;color:var(--herb)}
+/* tablecloth stripe, leaf green on mint */
+.stripe{height:14px;border-radius:99px;margin:0 0 28px;background:repeating-linear-gradient(90deg,var(--herb) 0 22px,var(--fresh) 22px 44px)}
 .meals{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
 details.knotes{margin-top:34px;border-top:1px solid var(--line)}
-details.knotes summary{padding:16px 0;font:800 18px Archivo,sans-serif}
+details.knotes summary{padding:16px 0;font:800 18px Archivo,sans-serif;color:var(--cobalt)}
 /* new dinner party */
 .pmodes{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:6px 0 20px}
 .pmodes button{background:none;color:var(--ink);border-radius:0}
@@ -229,6 +234,7 @@ body:not(.party) #party{display:none}
       <button class="start alt" data-act="party-surprise"><span><b>Surprise me</b><span>Tell Mise a protein or ingredients; it builds the menu</span></span><i>→</i></button>
     </div>
   </div>
+  <div class="stripe" aria-hidden="true"></div>
   <h2 class="htitle" id="recentTitle">Pick up a recent meal</h2>
   <div class="meals" id="mealCards"></div>
   <details class="knotes"><summary>Kitchen notes</summary>
