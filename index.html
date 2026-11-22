@@ -176,6 +176,57 @@ body.chatting .fab{display:none}
 .chat-in button,.chat-in .btn{min-height:46px;padding:0 12px}
 .chat-speak{display:flex;gap:6px;align-items:center;padding:0 14px calc(10px + env(safe-area-inset-bottom));margin:0}
 @media(min-width:1100px){body.chatting .wide,body.chatting main,body.chatting header .wrap,body.chatting nav .wrap{margin-right:440px}}
+/* full-width meal page */
+.hgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:24px}
+.navin{display:flex;gap:4px}
+nav .navin a{flex:0 0 auto;padding:14px 18px}
+@media(max-width:600px){.navin{overflow-x:auto;scrollbar-width:none}nav .navin a{padding:14px 10px}}
+.settings{grid-template-columns:minmax(0,1.3fr) minmax(0,.55fr) minmax(0,1fr)}
+.settings select{font:16px "Public Sans",system-ui,sans-serif;padding:10px;border-radius:10px;border:0;background:rgba(255,255,255,.18);color:#fff;min-height:44px;width:100%}
+.settings select option{color:var(--ink)}
+.menucard{background:#fff;color:var(--ink);border-radius:20px;box-shadow:0 14px 44px rgba(42,29,24,.16);padding:20px 22px;align-self:start;position:relative;z-index:6}
+.mc-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.mc-h b{font:800 22px Archivo,system-ui,sans-serif;color:var(--cobalt)}
+.mc-h span{font-size:13px;color:var(--mute)}
+.mc-c{font:800 11px Archivo,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--herb);margin:14px 0 4px}
+.menucard ul{list-style:none;margin:0;padding:0}
+.menucard li{padding:3px 0;font-size:15px;line-height:1.35}
+.menucard li a{color:var(--ink);text-decoration:none;cursor:pointer}
+.menucard li a:hover{color:var(--cobalt);text-decoration:underline}
+.menucard li i{font-style:normal;font-size:12px;color:var(--cobalt);background:var(--sky);border-radius:99px;padding:1px 7px;margin-left:6px;white-space:nowrap}
+.mc-k{font-size:13px;color:var(--mute);margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.mc-k a{color:var(--cobalt);cursor:pointer}
+.bal{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.bal h4{font:800 15px Archivo,system-ui,sans-serif;margin:0 0 6px}
+.bal .verdict{font:800 18px Archivo,system-ui,sans-serif;color:var(--herb)}
+.meter{display:grid;grid-template-columns:8.5em minmax(0,1fr);gap:8px;align-items:center;font-size:13px;margin:5px 0}
+.meter .bar{height:8px;border-radius:99px;background:var(--panel);overflow:hidden}
+.meter .bar span{display:block;height:100%;border-radius:99px;background:var(--cobalt)}
+.meter:nth-child(odd) .bar span{background:var(--herb)}
+.bal ul{list-style:disc;padding-left:18px;margin:8px 0 0}.bal ul li{font-size:14px}
+@media(min-width:1000px){
+  .hgrid{grid-template-columns:minmax(0,1fr) 380px;gap:32px}
+  .menucard{margin-bottom:-3000px;max-height:calc(100vh - 40px);overflow:auto}
+  nav .navin,main.mainin{margin-right:412px}
+}
+/* recipe list rows */
+.ticket.dish{display:grid;grid-template-columns:150px minmax(0,1fr);gap:22px;border:0;border-top:1px solid var(--line);border-radius:0;margin:0;padding:18px 0;overflow:visible}
+.ticket.dish:nth-child(even){border-left:0}
+.dish .top{padding:0;gap:8px}
+.dish details{border-top:0}.dish summary{padding:6px 0;min-height:36px;color:var(--cobalt)}
+.dish .body{padding:0 0 4px}
+.dcourse select{appearance:none;-webkit-appearance:none;border:0;background:none;font:800 13px Archivo,system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--tom);padding:4px 0;cursor:pointer;max-width:100%}
+.dcourse select:hover{color:var(--cobalt)}
+.dish h3{font-size:21px}
+@media(max-width:700px){.ticket.dish{grid-template-columns:1fr;gap:4px}}
+/* kitchen spaces */
+body.space header,body.space nav,body.space main{display:none}
+body:not(.space) #space{display:none}
+#space{padding-top:32px;padding-bottom:60px}
+.apps{display:grid;gap:8px;max-width:900px}
+.aprow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) 70px auto;gap:8px;align-items:center}
+.aprow input{font:16px "Public Sans",system-ui,sans-serif;padding:10px;border-radius:10px;border:1px solid var(--line);min-height:44px;width:100%}
+@media(max-width:700px){.aprow{grid-template-columns:1fr 70px auto}.aprow input[data-ap=detail]{grid-column:1/-1;grid-row:2}}
 /* home: meal cards */
 .wide{padding:0 max(4vw,16px)}
 #home,#party{padding-top:32px;padding-bottom:60px}
@@ -281,23 +332,27 @@ body:not(.rec) #rec{display:none}
 </section>
 <section id="party" class="wide"><div id="partyBody"></div></section>
 <section id="rec" class="wide"><div id="recBody"></div></section>
-<header><div class="wrap">
+<section id="space" class="wide"><div id="spaceBody"></div></section>
+<header><div class="wide hgrid">
+  <div class="hleft">
   <div class="topbar"><a href="#meals">← All meals</a><button data-act="delmeal">Delete meal</button></div>
   <input class="mealname" id="mealName" aria-label="Meal name" value="">
   <div class="settings">
     <label>Serving at<input type="datetime-local" id="serveAt"></label>
     <label>Guests<input type="number" id="guests" min="1" max="60"></label>
-    <label>Ovens<input type="number" id="ovens" min="1" max="4"></label>
+    <label>Cooking at<select id="spaceSel" aria-label="Where you're cooking"></select></label>
   </div>
   <div class="countdown" id="countdown"></div>
+  </div>
+  <aside class="menucard" id="menuCard" aria-label="The menu"></aside>
 </div></header>
-<nav><div class="wrap">
+<nav><div class="wide navin">
   <a href="#recipes" data-v="recipes">Recipes<small id="nR">0</small></a>
   <a href="#shopping" data-v="shopping">Shopping<small id="nS">0</small></a>
   <a href="#prep" data-v="prep">Prep plan</a>
   <a href="#cook" data-v="cook">Cook</a>
 </div></nav>
-<main class="wrap">
+<main class="wide mainin">
   <div id="sampleBar"></div>
 
   <section class="view" id="v-recipes">
@@ -533,7 +588,7 @@ live:{status:"done",events:[],tasks:[],chat:[],reminders:[],appliances:[],sugges
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9);
-const VIEWS=["meals","party","rec","recipes","shopping","prep","cook"];
+const VIEWS=["meals","party","rec","space","recipes","shopping","prep","cook"];
 const blankMeal=()=>normMeal({id:uid(),meal:{name:"",serveAt:"",guests:"",ovens:1,busy:""},recipes:[],plan:null,checks:{}});
 const sampleMeal=()=>normMeal({...JSON.parse(JSON.stringify(SAMPLE)),id:"sample"});
 
@@ -541,7 +596,7 @@ const sampleMeal=()=>normMeal({...JSON.parse(JSON.stringify(SAMPLE)),id:"sample"
 let DB=seed(load());
 let S=DB.meals.find(m=>m.id===DB.cur)||null;
 let view=(location.hash||"").slice(1);
-if(!VIEWS.includes(view)||(!S&&!["meals","party","rec"].includes(view)))view="meals";
+if(!VIEWS.includes(view)||(!S&&!["meals","party","rec","space"].includes(view)))view="meals";
 
 function load(){
   try{
@@ -556,6 +611,10 @@ function seed(db){
   db.prefs=db.prefs||{notes:[],equipment:"",speak:false};
   db.seeded=db.seeded||{};
   db.bank=db.bank||[];
+  db.spaces=db.spaces&&db.spaces.length?db.spaces:[{id:"home",name:"Home",notes:"",appliances:[
+    {name:"Oven",detail:"Bake, Convection Bake, Convection Roast",count:1},{name:"Stovetop",detail:"",count:1},{name:"Air fryer",detail:"",count:1},
+    {name:"Instant Pot",detail:"",count:1},{name:"Meat thermometer",detail:"",count:1},{name:"Roasting pan",detail:"",count:1},
+    {name:"Muffin tin",detail:"",count:1},{name:"Potato ricer",detail:"",count:1},{name:"Saucepans",detail:"",count:1}]}];
   if(!db.seeded.bank){for(const r of BANK_SEED)if(!db.bank.some(b=>b.id===r.id))db.bank.push(JSON.parse(JSON.stringify(r)));db.seeded.bank=1}
   if(!db.seeded.xmas24){db.meals.push(JSON.parse(JSON.stringify(XMAS)));db.seeded.xmas24=1}
   if(!db.seeded.tg26){
@@ -603,6 +662,7 @@ function seed(db){
 function normMeal(m){
   m.live=m.live||{status:"idle",events:[],tasks:[],chat:[],reminders:[],appliances:[],suggest:[]};
   for(const k of ["events","tasks","chat","reminders","appliances","suggest"])m.live[k]=m.live[k]||[];
+  m.meal.space=m.meal.space||"home";
   for(const r of m.recipes){r.temps=r.temps||[];r.changes=r.changes||[];r.state=r.state||"";if(r.targetTempF===undefined)r.targetTempF=null}
   return m;
 }
@@ -685,18 +745,22 @@ function render(){
   document.body.classList.toggle("home",view==="meals");
   document.body.classList.toggle("party",view==="party");
   document.body.classList.toggle("rec",view==="rec");
+  document.body.classList.toggle("space",view==="space");
+  if(view==="space"){$("cmd").hidden=true;renderSpace();return}
   if(view==="party"){$("cmd").hidden=true;renderParty();return}
   if(view==="rec"){$("cmd").hidden=true;renderRec();return}
   if(view==="meals"){$("cmd").hidden=true;document.body.classList.remove("cooking");renderHome();renderBankTiles();renderNotes();return}
   $("mealName").value=S.meal.name||"";
   $("serveAt").value=S.meal.serveAt||"";
   $("guests").value=S.meal.guests||"";
-  $("ovens").value=S.meal.ovens||1;
+  const sp=spaceOf(S);
+  $("spaceSel").innerHTML=DB.spaces.map(s=>`<option value="${esc(s.id)}" ${s===sp?"selected":""}>${esc(s.name)}</option>`).join("")+`<option value="__edit">Edit ${esc(sp.name)}…</option><option value="__new">+ Add a kitchen space…</option>`;
   document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===view));
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id==="v-"+view));
   $("sampleBar").innerHTML=S.sample?`<div class="sample"><span>Sample meal so you can see how it works.</span><button class="ghost" data-act="clear">Start my own</button></div>`:"";
   $("nR").textContent=S.recipes.length;
   countdown();renderRecipes();renderShop();renderPlan();renderCook();
+  renderMenu();
   if(view==="recipes")loadPending(S);
 }
 function countdown(){
@@ -709,10 +773,13 @@ function countdown(){
 }
 function renderRecipes(){
   if(!S.recipes.length){$("recipeList").innerHTML=`<div class="empty">No recipes yet. Paste one above.</div>`;return}
-  $("recipeList").innerHTML=S.recipes.map(r=>{const k=scale(r);return `
-  <article class="ticket" data-id="${r.id}">
+  const opts=c=>{const list=COURSES.includes(c)||!c?COURSES:[c,...COURSES];return `<option value="" ${!c?"selected":""}>Course…</option>`+list.map(x=>`<option ${x===c?"selected":""}>${esc(x)}</option>`).join("")};
+  $("recipeList").innerHTML=S.recipes.filter(r=>!r.removed).map(r=>{const k=scale(r);return `
+  <article class="ticket dish" data-id="${r.id}">
+    <div class="dcourse"><select data-act="course" aria-label="Course for ${esc(r.title)}">${opts(r.course||"")}</select></div>
+    <div>
     <div class="top">
-      <div>${r.course?`<div class="ctag" style="font:700 12px Archivo,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--tom)">${esc(r.course)}</div>`:""}<h3>${esc(r.title)}</h3>
+      <div><h3>${esc(r.title)}</h3>
       <div class="meta">${r.totalMin?`<span>${mins(r.totalMin)} total</span>`:""}${r.activeMin?`<span>${mins(r.activeMin)} hands-on</span>`:""}${r.ovenTempF?`<span>${r.ovenTempF}°F oven</span>`:""}${r.source?`<a href="${esc(r.source)}" target="_blank" rel="noopener">Source</a>`:""}</div></div>
       <div class="ctl">
         <div class="seg" role="group" aria-label="When to make">
@@ -727,7 +794,7 @@ function renderRecipes(){
       ${r.notes?`<p class="ahead">${esc(r.notes)}</p>`:""}
       ${!r.ingredients.length?(r.source?`<div class="row" style="margin:0">${loadingIds.has(r.id)?`<span class="status" id="ll-${r.id}" style="margin:0"><span class="spin" style="display:inline-block;vertical-align:-3px"></span> Loading the recipe from the site…</span>`:`<button class="ghost" data-act="loadlink">Load recipe from link</button><span class="status" id="ll-${r.id}" style="margin:0"></span>`}</div>`:`<p class="ahead">No recipe saved yet. Paste one above, or tell Mise how you make it.</p>`):""}
     </div>
-    <details><summary>Ingredients and instructions</summary><div class="body">
+    ${r.ingredients.length?`<details><summary>Ingredients and instructions</summary><div class="body">
       ${k!==1?`<p class="hint">Scaled from ${r.servings} to ${r.target} servings.</p>`:""}
       <h4>Ingredients</h4><ul>${r.ingredients.map(i=>`<li>${i.qty!=null?`<b>${fq(i.qty*k)}${i.unit?" "+esc(i.unit):""}</b> `:""}${esc(i.item)}${i.note?", "+esc(i.note):""}</li>`).join("")}</ul>
       <h4>Instructions</h4><ol>${r.steps.map(s=>`<li>${stepHTML(r,s,k)}</li>`).join("")}</ol>
@@ -736,7 +803,8 @@ function renderRecipes(){
         ${r.finish?`<p><b>Last minute:</b> ${esc(r.finish)}</p>`:""}
         ${r.hold?`<p><b>Holding:</b> ${esc(r.hold)}</p>`:""}
       </div>
-    </div></details>
+    </div></details>`:""}
+    </div>
   </article>`}).join("");
 }
 function mins(m){m=Math.round(m);return m>=60?Math.floor(m/60)+" hr"+(m%60?" "+m%60+" min":""):m+" min"}
@@ -867,8 +935,8 @@ async function buildPlan(){
   const recipes=S.recipes.map(r=>({title:r.title,mode:r.mode==="ahead"?"make ahead":"day of",servings:r.target,activeMin:r.activeMin,totalMin:r.totalMin,ovenTempF:r.ovenTempF,steps:r.steps.map(s=>stepText(r,s,scale(r))),makeAhead:r.makeAhead,finish:r.finish,hold:r.hold,freshItems:r.ingredients.filter(i=>i.fresh).map(i=>i.item)}));
   const now=new Date(),local=new Date(now-now.getTimezoneOffset()*6e4).toISOString().slice(0,16);
   const prompt=`You are an experienced caterer pacing a home cook's large meal. Right now it is ${local} local time.
-Serving time: ${S.meal.serveAt}. Guests: ${S.meal.guests||"unknown"}. Ovens: ${S.meal.ovens||1}.
-Equipment: ${S.live.equipment||DB.prefs.equipment||"a standard oven and stovetop"}.
+Serving time: ${S.meal.serveAt}. Guests: ${S.meal.guests||"unknown"}.
+Kitchen: ${spaceText(spaceOf(S))}. Ovens: ${ovenCount(spaceOf(S))}.
 The cook is not available: ${S.meal.busy||"no restrictions given"}. Don't schedule hands-on work then.
 Kitchen notes from this cook (use them): ${JSON.stringify(DB.prefs.notes)}
 Recipes (JSON): ${JSON.stringify(recipes)}
@@ -938,7 +1006,7 @@ function logTemp(r,f,quiet){
 function liveContext(){
   return {
     now:localISO(),
-    meal:{name:S.meal.name,targetServe:S.meal.serveAt,guests:S.meal.guests,ovens:S.meal.ovens,equipment:L().equipment||DB.prefs.equipment,notAvailable:S.meal.busy||""},
+    meal:{name:S.meal.name,targetServe:S.meal.serveAt,guests:S.meal.guests,kitchen:spaceText(spaceOf(S)),ovens:ovenCount(spaceOf(S)),extraEquipmentNotes:L().equipment||"",notAvailable:S.meal.busy||""},
     kitchenNotes:DB.prefs.notes,
     dishes:activeDishes().map(r=>{const k=scale(r);return {title:r.title,state:r.state||"not started",mode:r.mode,targetInternalF:r.targetTempF,ovenTempF:r.ovenTempF,
       temps:r.temps.slice(-6).map(x=>({at:x.at,f:x.f})),ingredients:r.ingredients.map(i=>ingText(i,k)),steps:r.steps.map(s=>stepText(r,s,k)),
@@ -1050,7 +1118,6 @@ async function startCooking(){
   if(!S.meal.serveAt){toast("Set a serving time at the top first.");return}
   if(!S.recipes.length){toast("Add your recipes first.");go("recipes");return}
   const lv=L();lv.equipment=$("eqIn").value.trim();S.meal.busy=$("busyIn").value.trim();
-  if(lv.equipment)DB.prefs.equipment=lv.equipment;
   lv.status="cooking";lv.startedAt=localISO();addEvent("Started cooking.");
   for(const r of activeDishes())r.state=r.state||"Not started";
   /* carry over the prep plan's tasks that are still ahead, so Claude refines rather than starts over */
@@ -1112,7 +1179,8 @@ function renderCook(){
     el.innerHTML=`<div class="adder setup">
       <h2 style="font-size:24px">Live cooking</h2>
       <p class="hint">Start when you begin cooking. Then just tell Mise what's happening ("pork's in", "it's 120", "the beans are moldy") and it keeps every dish, timer and appliance in step, and moves the dinner estimate if something runs slow.</p>
-      <label>Your equipment<input id="eqIn" value="${esc(lv.equipment||DB.prefs.equipment||"")}" placeholder="Oven (convection), Instant Pot, air fryer, stovetop, thermometer"></label>
+      <p class="hint" style="margin:10px 0 0">Cooking at <b>${esc(spaceOf(S).name)}</b>: ${esc(spaceShort(spaceOf(S))||"no appliances listed")}. <a data-act="space-edit" style="color:var(--cobalt);cursor:pointer">Edit kitchen</a></p>
+      <label>Anything different today<input id="eqIn" value="${esc(lv.equipment||"")}" placeholder="Borrowed a second slow cooker; one burner is out"></label>
       <label>When you're not available<input id="busyIn" value="${esc(S.meal.busy||"")}" placeholder="Swim lesson 10–11, nap 1–3"></label>
       <div class="row"><button data-act="startcook">Start cooking</button><span class="hint" style="margin:0">${S.meal.serveAt?"Serving "+new Date(S.meal.serveAt).toLocaleString([], {weekday:"short",hour:"numeric",minute:"2-digit"}):"Set a serving time first"}</span></div>
     </div>`;
@@ -1208,7 +1276,7 @@ function renderParty(){
 }
 function partyContext(){
   const d=D();
-  return `Dinner party for ${d.guests||"several"} guests${d.serveAt?`, serving ${d.serveAt}`:""}. Equipment: ${DB.prefs.equipment||"standard oven and stovetop"}.
+  return `Dinner party for ${d.guests||"several"} guests${d.serveAt?`, serving ${d.serveAt}`:""}. Kitchen: ${spaceText(DB.spaces[0])}.
 Cook's kitchen notes: ${JSON.stringify(DB.prefs.notes)}.
 ${d.want?`Build around: ${d.want}.`:""} ${d.avoid?`Keep in mind: ${d.avoid}.`:""}`;
 }
@@ -1353,9 +1421,9 @@ async function bankSave(){
 /* ---------- Ask Mise: chat anywhere ---------- */
 function chatThread(){if(S&&view!=="meals"&&view!=="party"&&view!=="rec"){S.talk=S.talk||[];return S.talk}DB.talk=DB.talk||[];return DB.talk}
 function chatContext(){
-  const base={now:localISO(),kitchenNotes:DB.prefs.notes,equipment:DB.prefs.equipment,recipeBank:BANK().map(b=>b.title)};
+  const base={now:localISO(),kitchenNotes:DB.prefs.notes,kitchens:DB.spaces.map(spaceText),recipeBank:BANK().map(b=>b.title)};
   if(!S||["meals","party","rec"].includes(view))return {...base,openMeal:null,meals:DB.meals.map(m=>({name:m.meal.name,serving:m.meal.serveAt||m.meal.when||"",dishes:m.recipes.filter(r=>!r.removed).map(r=>r.title)}))};
-  return {...base,openMeal:{name:S.meal.name,serving:S.meal.serveAt,guests:S.meal.guests,ovens:S.meal.ovens,notAvailable:S.meal.busy,
+  return {...base,openMeal:{name:S.meal.name,serving:S.meal.serveAt,guests:S.meal.guests,kitchen:spaceText(spaceOf(S)),notAvailable:S.meal.busy,
     dishes:activeDishes().map(r=>{const k=scale(r);return {title:r.title,course:r.course,mode:r.mode,servings:r.target,activeMin:r.activeMin,totalMin:r.totalMin,ovenTempF:r.ovenTempF,
       ingredients:r.ingredients.map(i=>ingText(i,k)),steps:r.steps.map(s=>stepText(r,s,k)),makeAhead:r.makeAhead,finish:r.finish,hold:r.hold,source:r.source}}),
     prepPlan:S.plan?S.plan.tasks.map(t=>`${t.at} ${t.recipe?t.recipe+": ":""}${t.what}`):null,
@@ -1394,6 +1462,102 @@ async function chatSend(text,images){
   chatBusy=false;save();renderChat();
 }
 
+/* ---------- kitchen spaces ---------- */
+const spaceOf=m=>DB.spaces.find(s=>s.id===(m&&m.meal.space))||DB.spaces[0];
+const spaceText=sp=>sp?`${sp.name}: ${sp.appliances.map(a=>`${a.count>1?a.count+" × ":""}${a.name}${a.detail?" ("+a.detail+")":""}`).join("; ")}${sp.notes?". "+sp.notes:""}`:"a standard home kitchen";
+const ovenCount=sp=>sp?sp.appliances.filter(a=>/\boven\b/i.test(a.name)&&!/toaster|microwave|dutch|air/i.test(a.name)).reduce((n,a)=>n+(+a.count||1),0)||1:1;
+const spaceShort=sp=>sp?sp.appliances.filter(a=>!/thermometer|pan|tin|ricer|saucepan|knife|board/i.test(a.name)).map(a=>`${a.count>1?a.count+" ":""}${a.name.toLowerCase()}${a.count>1&&!/s$/.test(a.name)?"s":""}`).join(", "):"";
+function openSpace(id){DB.spaceReturn=S&&!["meals","party","rec","space"].includes(view)?view:"meals";
+  DB.spaceDraft=id==="new"?{id:uid(),name:"",appliances:[],notes:"",isNew:true}:JSON.parse(JSON.stringify(DB.spaces.find(s=>s.id===id)||DB.spaces[0]));save();go("space")}
+let spaceBusy=false;
+function renderSpace(){
+  const d=DB.spaceDraft;if(!d){go("meals");return}
+  $("spaceBody").innerHTML=`<a data-act="space-cancel" class="hint" style="text-decoration:none;cursor:pointer">← Back</a>
+    <h1 class="brand" style="font-size:clamp(34px,5vw,56px);margin:10px 0 6px">${d.isNew?"Add a kitchen space":"Your kitchen: "+esc(d.name)}</h1>
+    <p class="intro" style="margin-bottom:20px">Tell Mise what you cook with, so plans spread dishes across the oven, stovetop, air fryer and Instant Pot instead of piling everything into one oven.</p>
+    <div class="setup" style="max-width:520px"><label>Name<input data-sp="name" value="${esc(d.name)}" placeholder="Home, the lake house, Mom's"></label></div>
+    <div class="sec" style="color:var(--cobalt)">Describe it, and Mise fills in the list</div>
+    <div class="adder" style="max-width:900px">
+      <textarea id="spaceDesc" placeholder="“One oven with convection bake and roast, a gas cooktop with four burners, an air fryer, an Instant Pot, a meat thermometer…”">${esc(d.desc||"")}</textarea>
+      <div class="row"><button class="ghost mic" id="spaceMic" data-act="space-mic">🎙 Talk me through it</button>
+        <label class="btn ghost" for="spacePhotos">📷 Add photos</label><input type="file" id="spacePhotos" accept="image/*" multiple>
+        <button data-act="space-read" ${spaceBusy?"disabled":""}>${spaceBusy?'<span class="spin"></span> Reading…':"Read my kitchen"}</button></div>
+      <div class="status" id="spaceStatus">${d.photos?`${d.photos} photo${d.photos>1?"s":""} ready.`:""}</div>
+      <p class="hint">Photos of your range, oven controls or counter appliances work well. Mise will list what it can see and say what it can't tell.</p>
+    </div>
+    <div class="sec">What you have</div>
+    <div class="apps">${d.appliances.map((a,i)=>`<div class="aprow"><input data-ap="name" data-i="${i}" value="${esc(a.name)}" placeholder="Appliance" aria-label="Appliance"><input data-ap="detail" data-i="${i}" value="${esc(a.detail||"")}" placeholder="Settings, size, notes" aria-label="Details"><input data-ap="count" data-i="${i}" type="number" min="1" value="${a.count||1}" aria-label="How many"><button class="rm" data-apdel="${i}">✕</button></div>`).join("")||`<p class="hint">Nothing yet. Describe your kitchen above or add appliances one by one.</p>`}</div>
+    <div class="row"><button class="ghost" data-act="space-addrow">+ Add appliance</button></div>
+    <div class="setup" style="max-width:900px"><label>Anything else Mise should know<input data-sp="notes" value="${esc(d.notes||"")}" placeholder="Oven runs hot, only two burners fit big pots, small fridge"></label></div>
+    <div class="row" style="margin-top:20px"><button data-act="space-save">Save kitchen</button>${!d.isNew&&DB.spaces.length>1?`<button class="rm" data-act="space-del">Delete this space</button>`:""}</div>`;
+}
+let spaceFiles=[];
+async function readSpace(){
+  const d=DB.spaceDraft,txt=$("spaceDesc").value.trim();d.desc=txt;
+  if(!txt&&!spaceFiles.length){status("spaceStatus","Describe your kitchen or add a photo first.",1);return}
+  spaceBusy=true;renderSpace();status("spaceStatus","Reading your kitchen…");
+  try{
+    const out=await claude.json(`List the cooking equipment in this home kitchen from the cook's description and/or photos, for a meal-planning app that schedules dishes across appliances.
+Already listed: ${JSON.stringify(d.appliances)}.
+Description: ${txt||"(see photos)"}
+Return JSON only: {"appliances":[{"name":short name such as "Oven","Stovetop","Air fryer","Instant Pot","Microwave","Slow cooker","Grill","Meat thermometer","detail":modes, size or burners if known, else "","count":number}],"notes":"" or anything that affects cooking (oven runs hot, small oven),"unsure":"" or what you couldn't tell from photos}
+Include everything already listed, merged with anything new. Only include what was described or is clearly visible.`,{modelTier:"default",images:spaceFiles});
+    if(Array.isArray(out.appliances)&&out.appliances.length)d.appliances=out.appliances.map(a=>({name:a.name||"",detail:a.detail||"",count:+a.count||1}));
+    if(out.notes&&!d.notes)d.notes=out.notes;
+    spaceFiles=[];d.photos=0;spaceBusy=false;save();renderSpace();status("spaceStatus",out.unsure?"Couldn't tell: "+out.unsure:"Updated. Check the list and save.");
+  }catch(e){spaceBusy=false;renderSpace();status("spaceStatus",e.message||"Couldn't read that.",1)}
+}
+function saveSpace(){
+  const d=DB.spaceDraft;d.name=(d.name||"").trim()||"My kitchen";d.appliances=d.appliances.filter(a=>a.name.trim());
+  const clean={id:d.id,name:d.name,appliances:d.appliances,notes:d.notes||""};
+  const i=DB.spaces.findIndex(s=>s.id===d.id);if(i>=0)DB.spaces[i]=clean;else DB.spaces.push(clean);
+  if(S&&DB.spaceReturn!=="meals")S.meal.space=clean.id;
+  DB.spaceDraft=null;save();go(DB.spaceReturn||"meals");
+}
+function dictate(targetId,btnId){
+  if(!SR){toast("Voice input isn't supported in this browser. Try Chrome or Safari.");return}
+  if(rec){rec.stop();return}
+  rec=new SR();rec.lang="en-US";rec.interimResults=false;rec.continuous=true;$(btnId).classList.add("on");
+  rec.onresult=e=>{const t=[...e.results].slice(e.resultIndex).map(x=>x[0].transcript).join(" ");const el=$(targetId);el.value=(el.value?el.value+" ":"")+t.trim();if(DB.spaceDraft)DB.spaceDraft.desc=el.value};
+  rec.onend=rec.onerror=()=>{rec=null;const b=$(btnId);if(b)b.classList.remove("on")};
+  try{rec.start()}catch(e){rec=null;$(btnId).classList.remove("on")}
+}
+
+/* ---------- the menu box and balance ---------- */
+const COURSES=["Drink","Appetizer","Soup","Salad","Main course","Side","Veggie","Starch","Sauce","Bread","Cheese course","Dessert"];
+const courseRank=c=>{const n=norm(c);const i=COURSES.findIndex(x=>norm(x)===n||(n==="main"&&x==="Main course")||(n==="cocktail"&&x==="Drink")||(n==="starter"&&x==="Appetizer"));return i<0?(n?COURSES.length-1.5:COURSES.length):i};
+const balSig=()=>JSON.stringify(activeDishes().map(r=>[r.title,r.course,r.mode]).concat([[S.meal.space,S.meal.guests]]));
+function renderMenu(){
+  const el=$("menuCard"),ds=activeDishes();
+  const groups={};for(const r of [...ds].sort((a,b)=>courseRank(a.course)-courseRank(b.course)))(groups[r.course||"Not sorted yet"]??=[]).push(r);
+  const sp=spaceOf(S),b=S.balance,stale=b&&b.sig!==balSig();
+  el.innerHTML=`<div class="mc-h"><b>The menu</b><span>${ds.length} dish${ds.length===1?"":"es"}${S.meal.guests?` · ${S.meal.guests} guests`:""}</span></div>
+    ${ds.length?Object.entries(groups).map(([c,rs])=>`<div class="mc-c">${esc(c)}</div><ul>${rs.map(r=>`<li><a data-goto="${r.id}">${esc(r.title)}</a>${r.mode==="ahead"?"<i>make ahead</i>":""}</li>`).join("")}</ul>`).join("")
+      :`<p class="hint">Add recipes and they'll line up here by course.</p>`}
+    <div class="mc-k">Cooking at <b>${esc(sp.name)}</b>${spaceShort(sp)?`: ${esc(spaceShort(sp))}`:""}. <a data-act="space-edit">Edit</a></div>
+    ${ds.length>1?`<div class="bal"><h4>How balanced is this meal?</h4>
+      ${b?`<div class="verdict">${esc(b.verdict)}</div><p class="hint" style="margin:2px 0 8px">${esc(b.summary)}</p>
+        <div>${(b.scores||[]).map(s=>`<div class="meter" title="${esc(s.note||"")}"><span>${esc(s.label)}</span><div class="bar"><span style="width:${Math.max(4,Math.min(100,(+s.value||0)*20))}%"></span></div></div>`).join("")}</div>
+        ${(b.suggestions||[]).length?`<ul>${b.suggestions.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+        ${stale?`<p class="hint" style="color:#8a5a00">The menu changed since this check.</p>`:""}`:`<p class="hint" style="margin:0 0 8px">Mise looks at richness, vegetables, starch, color and texture, and whether everything fits your kitchen.</p>`}
+      <div class="row" style="margin-top:8px"><button class="ghost" data-act="balance" style="min-height:38px;font-size:14px">${balBusy?'<span class="spin"></span> Checking…':b?"Check again":"Check the balance"}</button><span class="status" id="balStatus" style="margin:0"></span></div></div>`:""}`;
+}
+let balBusy=false;
+async function checkBalance(){
+  if(balBusy)return;balBusy=true;renderMenu();
+  const dishes=activeDishes().map(r=>({title:r.title,course:r.course,mode:r.mode,ovenTempF:r.ovenTempF,totalMin:r.totalMin,keyIngredients:r.ingredients.slice(0,10).map(i=>i.item)}));
+  try{
+    const out=await claude.json(`You are an experienced chef reviewing a home cook's dinner party menu for balance. Guests: ${S.meal.guests||"unknown"}. Kitchen: ${spaceText(spaceOf(S))}. Kitchen notes: ${JSON.stringify(DB.prefs.notes)}.
+Dishes: ${JSON.stringify(dishes)}
+Judge it as a whole meal. Return JSON only: {"verdict":2 to 4 words such as "Nicely balanced" or "Heavy on starch","summary":one sentence,
+"scores":[{"label":"Protein","value":0-5,"note":""},{"label":"Vegetables","value":0-5,"note":""},{"label":"Starch","value":0-5,"note":""},{"label":"Richness","value":0-5,"note":""},{"label":"Freshness","value":0-5,"note":""},{"label":"Color & texture","value":0-5,"note":""},{"label":"Oven load","value":0-5,"note":"how crowded the oven is given this kitchen"}],
+"suggestions":[1 to 3 short, specific suggestions, or none if it's well balanced]}`,{modelTier:"default"});
+    if(!out||!out.verdict)throw {message:"No answer came back. Try again."};
+    S.balance={...out,sig:balSig()};save();
+  }catch(e){balBusy=false;renderMenu();status("balStatus",e.message||"Couldn't check it.",1);return}
+  balBusy=false;renderMenu();
+}
+
 /* ---------- events ---------- */
 document.addEventListener("click",e=>{
   const a=e.target.closest("[data-act]");if(!a)return;
@@ -1412,6 +1576,14 @@ document.addEventListener("click",e=>{
   else if(act==="clear"){swapMeal(blankMeal());save();render();$("mealName").focus()}
   else if(act==="plan")buildPlan();
   else if(act==="startcook")startCooking();
+  else if(act==="balance")checkBalance();
+  else if(act==="space-edit")openSpace(spaceOf(S).id);
+  else if(act==="space-cancel"){DB.spaceDraft=null;save();go(DB.spaceReturn||"meals")}
+  else if(act==="space-addrow"){DB.spaceDraft.appliances.push({name:"",detail:"",count:1});renderSpace();const ins=document.querySelectorAll("[data-ap=name]");ins[ins.length-1].focus()}
+  else if(act==="space-read")readSpace();
+  else if(act==="space-mic")dictate("spaceDesc","spaceMic");
+  else if(act==="space-save")saveSpace();
+  else if(act==="space-del"){const d=DB.spaceDraft;if(confirm(`Delete ${d.name}?`)){DB.spaces=DB.spaces.filter(s=>s.id!==d.id);for(const m of DB.meals)if(m.meal.space===d.id)m.meal.space=DB.spaces[0].id;DB.spaceDraft=null;save();go(DB.spaceReturn||"meals")}}
   else if(act==="chat-open")openChat(true);
   else if(act==="chat-close")openChat(false);
   else if(act==="party-links")newDraft("links");
@@ -1476,6 +1648,13 @@ $("sendBtn").addEventListener("click",()=>{const t=$("say").value;$("say").value
 $("say").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("sendBtn").click()}});
 $("mic").addEventListener("click",()=>toggleMic());
 $("cmdPhoto").addEventListener("change",async()=>{const f=[...$("cmdPhoto").files];$("cmdPhoto").value="";if(!f.length)return;const t=$("say").value;$("say").value="";liveSend(t||"What can you tell from this photo, for what I'm cooking right now?",f)});
+document.addEventListener("click",e=>{
+  const g=e.target.closest("[data-goto]");
+  if(g){const id=g.dataset.goto;go("recipes");setTimeout(()=>{const el=document.querySelector(`.ticket[data-id="${id}"]`);if(el){el.scrollIntoView({behavior:"smooth",block:"start"});const d=el.querySelector("details");if(d)d.open=true}},60);return}
+  const x=e.target.closest("[data-apdel]");if(x&&DB.spaceDraft){DB.spaceDraft.appliances.splice(+x.dataset.apdel,1);save();renderSpace()}
+});
+document.addEventListener("input",e=>{const t=e.target,d=DB.spaceDraft;if(!d||view!=="space")return;
+  if(t.dataset.sp)d[t.dataset.sp]=t.value;else if(t.dataset.ap){const a=d.appliances[+t.dataset.i];if(a)a[t.dataset.ap]=t.dataset.ap==="count"?+t.value||1:t.value}else if(t.id==="spaceDesc")d.desc=t.value;else return;save()});
 document.addEventListener("click",e=>{const c=e.target.closest("[data-rec]");if(c)openRec(c.dataset.rec)});
 document.addEventListener("click",e=>{const c=e.target.closest("[data-open]");if(!c)return;const m=DB.meals.find(x=>x.id===c.dataset.open);if(m)openMeal(m)});
 document.addEventListener("change",e=>{
@@ -1486,7 +1665,10 @@ document.addEventListener("change",e=>{
   if(t.dataset.task){const k=S.live.tasks.find(x=>x.id===t.dataset.task);if(k){k.done=true;addEvent("Done: "+k.what,k.dish);guardDishes();save();setTimeout(renderCook,250)}return}
   if(t.dataset.ck){S.checks[t.dataset.ck]=t.checked;if(!t.checked)delete S.checks[t.dataset.ck];save();render();return}
   if(t.dataset.act==="target"){const r=S.recipes.find(x=>x.id===t.closest(".ticket").dataset.id);if(r){r.target=Math.max(1,+t.value||r.servings);save();render()}return}
-  if(t.id==="serveAt"||t.id==="guests"||t.id==="ovens"){S.meal[t.id]=t.id==="serveAt"?t.value:+t.value;save();render()}
+  if(t.id==="spaceSel"){if(t.value==="__new")openSpace("new");else if(t.value==="__edit")openSpace(spaceOf(S).id);else{S.meal.space=t.value;S.meal.ovens=ovenCount(spaceOf(S));save();render()}return}
+  if(t.dataset.act==="course"){const r=S.recipes.find(x=>x.id===t.closest(".ticket").dataset.id);if(r){r.course=t.value;save();render()}return}
+  if(t.id==="spacePhotos"){spaceFiles=[...t.files];t.value="";DB.spaceDraft.photos=spaceFiles.length;renderSpace();return}
+  if(t.id==="serveAt"||t.id==="guests"){S.meal[t.id]=t.id==="serveAt"?t.value:+t.value;save();render()}
 });
 $("mealName").addEventListener("input",e=>{S.meal.name=e.target.value;save()});
 $("mealName").placeholder="Name this meal";
@@ -1498,7 +1680,7 @@ $("copyShop").addEventListener("click",async()=>{
   try{await navigator.clipboard.writeText(txt);$("copyShop").textContent="Copied"}catch(err){$("copyShop").textContent="Couldn't copy"}
   setTimeout(()=>$("copyShop").textContent="Copy list",1600);
 });
-window.addEventListener("hashchange",()=>{if(!$("chat").hidden)setTimeout(renderChat,0);$("fab").hidden=false;view=(location.hash||"").slice(1);if(!VIEWS.includes(view)||(!S&&!["meals","party","rec"].includes(view)))view="meals";render();scrollTo(0,0)});
+window.addEventListener("hashchange",()=>{if(!$("chat").hidden)setTimeout(renderChat,0);$("fab").hidden=false;view=(location.hash||"").slice(1);if(!VIEWS.includes(view)||(!S&&!["meals","party","rec","space"].includes(view)))view="meals";render();scrollTo(0,0)});
 setInterval(()=>{if(view==="meals")renderHome();else{countdown();if(view==="prep")renderPlan()}},60000);
 render();
 }
