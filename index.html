@@ -562,6 +562,21 @@ function seed(db){
       m.recipes.push({...BR({id:uid(),title,course,source:url,servings:+m.meal.guests||8,ingredients:[],steps:[]}),target:+m.meal.guests||8});
     db.seeded.tg26=1;
   }
+  if(!db.seeded.tg26b){
+    const m=db.meals.find(x=>!x.sample&&/thanksgiving/i.test(x.meal.name||"")&&/^2026-11/.test(x.meal.serveAt||""));
+    const yp=ROAST.recipes.find(r=>r.id==="rp3");
+    const yorkie=()=>({...JSON.parse(JSON.stringify(yp)),id:uid(),state:"",temps:[],changes:[],course:"Side",
+      notes:"From the Sunday roast. The batter amounts are a standard ratio; swap in your own if they differ.",
+      steps:["Make the batter ahead and let it rest.","Grease the muffin tin and put it in the oven while it heats, before the roast comes out, so the fat gets properly hot.","Once the roast is out, raise the oven to 425°F.","When the fat is very hot, pour in the batter.","Bake 20–25 minutes without opening the oven."],
+      changes:[{at:"",what:"Tin goes in early because the fat hasn't been hot enough before."}]});
+    if(m){
+      const url="https://cooking.nytimes.com/recipes/543-roast-spatchcock-turkey";
+      if(!m.recipes.some(r=>r.source===url))m.recipes.unshift({...BR({id:uid(),title:"Roast spatchcock turkey",course:"Main course",source:url,servings:+m.meal.guests||8,ingredients:[],steps:[]}),targetTempF:165,target:+m.meal.guests||8});
+      if(!m.recipes.some(r=>/yorkshire/i.test(r.title)))m.recipes.push({...yorkie(),target:+m.meal.guests||yp.servings});
+    }
+    if(!db.bank.some(b=>/yorkshire/i.test(b.title)))db.bank.push({...yorkie(),course:"Side"});
+    db.seeded.tg26b=1;
+  }
   if(!db.seeded.roast){db.meals.push(JSON.parse(JSON.stringify(ROAST)));db.seeded.roast=1}
   if(!db.seeded.notes){for(const n of ROAST_NOTES)if(!db.prefs.notes.includes(n))db.prefs.notes.push(n);
     if(!db.prefs.equipment)db.prefs.equipment=ROAST.live.equipment;db.seeded.notes=1}
