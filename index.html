@@ -501,6 +501,50 @@ main{padding-top:16px}
 .bal h4{font-size:13px;font-weight:600;font-family:Inter,system-ui,sans-serif;color:var(--mute)}
 .bal .verdict{font-size:20px}
 .bal .row button{min-height:36px!important;font-size:13px!important;padding:0 14px}
+
+/* ===== bold accents on white: tomato, cobalt, leaf, lemon ===== */
+:root{--c-tomato:#e4532a;--c-cobalt:#2f57c9;--c-leaf:#2e7d4f;--c-lemon:#f4c430;--c-mustard:#b8860b}
+button,.btn{background:var(--c-tomato)}
+button.ghost,.btn.ghost{background:#fff;color:var(--ink)}
+.fab{background:var(--c-cobalt);box-shadow:0 8px 22px rgba(47,87,201,.28)}
+.countdown{color:var(--c-tomato)}
+nav a.on{border-bottom-color:var(--c-tomato)}
+.seg button.on,.pmodes button.on{background:var(--c-leaf);color:#fff}
+.dacts a,.meta a,.mc-k a{color:var(--c-cobalt)}
+.dmeta .dwarn,.dwarn{color:#9a6b00}
+.nodot{background:var(--c-lemon)}
+.menucard li i{background:#fff;color:var(--c-leaf);border:1px solid #bcd8c6}
+.bal .verdict{color:var(--c-tomato)}
+.meter .bar span{background:var(--c-cobalt)}.meter:nth-child(odd) .bar span{background:var(--c-leaf)}
+.bal .row button[data-act=fillgap]{background:var(--c-leaf)!important}
+.amt{color:var(--c-leaf)}
+.fill{background:#fff;border:1px solid var(--line);border-left:3px solid var(--c-leaf)}
+.chip{background:#fff;color:var(--c-leaf);border:1px solid #bcd8c6}.chip.mod{color:var(--c-tomato);border-color:#f3c2b2;background:#fff}
+.freshtag{background:#fff;color:var(--c-leaf);border:1px solid #bcd8c6}
+.aisle,.sec,.ctag,.mc-c{color:var(--c-tomato)}
+.nowcard{background:var(--c-cobalt)}.nowcard small,.nowcard .nxt{color:var(--c-lemon)}
+.tbox.late b{color:var(--c-tomato)}
+.task.next{box-shadow:inset 3px 0 0 var(--c-tomato)}
+.stale{background:#fff;border:1px solid #f1d27a;border-left:3px solid var(--c-lemon)}
+/* home: white tiles with a bold color edge, no pastel fills */
+.start.primary{background:var(--c-tomato);border-color:var(--c-tomato)}
+.start.alt{border-color:var(--line)}
+#mealCards .mcard,#mealCards .mcard:nth-child(3n+2),#mealCards .mcard:nth-child(3n+3){background:#fff;border:1px solid var(--line);border-top:4px solid var(--c-tomato)}
+#mealCards .mcard:nth-child(4n+2){border-top-color:var(--c-cobalt)}
+#mealCards .mcard:nth-child(4n+3){border-top-color:var(--c-leaf)}
+#mealCards .mcard:nth-child(4n+4){border-top-color:var(--c-lemon)}
+#mealCards .mcard:hover{outline:0;border-color:var(--ink)}
+#mealCards .mcard .soon{color:var(--c-tomato)}
+#bankCards .btile{border-left:3px solid var(--c-leaf)}
+#bankCards .btile:nth-child(even){border-left-color:var(--c-cobalt)}
+#bankCards .btile .ctag{color:var(--mute)}
+.course,.course:nth-child(n){border-top:3px solid var(--c-tomato)}
+.course:nth-child(4n+2){border-top-color:var(--c-cobalt)}.course:nth-child(4n+3){border-top-color:var(--c-leaf)}.course:nth-child(4n+4){border-top-color:var(--c-lemon)}
+.course .sugg{background:#fff;border:1px solid #bcd8c6}
+.pmodes button.on{background:var(--c-cobalt)}
+#icBtn{background:var(--c-leaf)}
+.seg.sm button.on{background:#fff;color:var(--c-leaf);font-weight:600;box-shadow:inset 0 0 0 1.5px var(--c-leaf);border-radius:999px}
+.seg.sm{border-color:var(--line)}
 </style>
 </head>
 <body>
@@ -980,7 +1024,7 @@ function renderRecipes(){
   $("recipeList").innerHTML=S.recipes.filter(r=>!r.removed).map(r=>{const k=scale(r),open=openRows.has(r.id),empty=!r.ingredients.length;return `
   <article class="ticket dish ${open?"open":""}" data-id="${r.id}">
     <div class="dline">
-      <div class="dcourse"><select data-act="course" aria-label="Course for ${esc(r.title)}">${opts(r.course||"")}</select></div>
+      <div class="dcourse"><select data-act="course" aria-label="Course for ${esc(r.title)}" style="color:${courseCol(r.course)}">${opts(r.course||"")}</select></div>
       <button class="dtitle" data-act="toggle" aria-expanded="${open}"><span class="dname">${esc(r.title)}</span>
         <span class="dmeta">${empty?(loadingIds.has(r.id)?"Loading the recipe…":`<span class="dwarn">No recipe yet</span>`):[r.totalMin?mins(r.totalMin):"",r.ovenTempF?r.ovenTempF+"°F":"",r.siteRating?"★ "+(+r.siteRating.value).toFixed(1):""].filter(Boolean).join(" · ")}</span></button>
       <div class="dctl">
@@ -1744,6 +1788,9 @@ function dictate(targetId,btnId){
 
 /* ---------- the menu box and balance ---------- */
 const COURSES=["Drink","Appetizer","Soup","Salad","Main course","Side","Veggie","Starch","Sauce","Bread","Cheese course","Dessert"];
+/* each course gets one bold color, used for its label only */
+const courseCol=c=>{const n=norm(c);if(/main/.test(n))return "var(--c-tomato)";if(/salad|veg|side|green/.test(n))return "var(--c-leaf)";
+  if(/dessert|cheese|sweet/.test(n))return "var(--c-mustard)";if(/appetizer|starter|soup|drink|cocktail|bread/.test(n))return "var(--c-cobalt)";return "var(--mute)"};
 const courseRank=c=>{const n=norm(c);const i=COURSES.findIndex(x=>norm(x)===n||(n==="main"&&x==="Main course")||(n==="cocktail"&&x==="Drink")||(n==="starter"&&x==="Appetizer"));return i<0?(n?COURSES.length-1.5:COURSES.length):i};
 const balSig=()=>JSON.stringify(activeDishes().map(r=>[r.title,r.course,r.mode]).concat([[S.meal.space,S.meal.guests]]));
 function renderMenu(){
@@ -1751,7 +1798,7 @@ function renderMenu(){
   const groups={};for(const r of [...ds].sort((a,b)=>courseRank(a.course)-courseRank(b.course)))(groups[r.course||"Not sorted yet"]??=[]).push(r);
   const sp=spaceOf(S),b=S.balance,stale=b&&b.sig!==balSig();
   el.innerHTML=`<div class="mc-h"><b>The menu</b><span>${ds.length} dish${ds.length===1?"":"es"}${S.meal.guests?` · ${S.meal.guests} guests`:""}</span></div>
-    ${ds.length?Object.entries(groups).map(([c,rs])=>`<div class="mc-c">${esc(c)}</div><ul>${rs.map(r=>`<li><a data-goto="${r.id}">${esc(r.title)}</a>${r.mode==="ahead"?"<i>make ahead</i>":""}${!r.ingredients.length?`<span class="nodot" title="No recipe saved yet" aria-label="No recipe saved yet"></span>`:""}</li>`).join("")}</ul>`).join("")
+    ${ds.length?Object.entries(groups).map(([c,rs])=>`<div class="mc-c" style="color:${courseCol(c)}">${esc(c)}</div><ul>${rs.map(r=>`<li><a data-goto="${r.id}">${esc(r.title)}</a>${r.mode==="ahead"?"<i>make ahead</i>":""}${!r.ingredients.length?`<span class="nodot" title="No recipe saved yet" aria-label="No recipe saved yet"></span>`:""}</li>`).join("")}</ul>`).join("")
       :`<p class="hint">Add recipes and they'll line up here by course.</p>`}
     ${sb?`<div class="mc-k">${S.sharedId?`Shared with the community. <a data-act="share">Update</a> · <a data-act="unshare">Unshare</a> · <a data-shared="${esc(S.sharedId)}">View</a>`:`<a data-act="share">Share this dinner party with the community</a>`}</div>`:""}
     <div class="mc-k">Cooking at <b>${esc(sp.name)}</b>${spaceShort(sp)?`: ${esc(spaceShort(sp))}`:""}. <a data-act="space-edit">Edit</a></div>
