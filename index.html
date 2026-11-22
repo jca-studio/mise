@@ -422,6 +422,32 @@ details.knotes summary{color:var(--ink);font-family:var(--serif);font-weight:400
 .toast{background:var(--ink)}
 .stale{background:var(--warn)}
 .sample{border-color:var(--line)}
+
+/* ===== lighter pass: white page, hairlines instead of shaded panels, ink only for main actions ===== */
+:root{--bg:#ffffff;--panel:#ffffff;--soft:#f7f5f1}
+body,header,nav{background:#fff}
+.mealname{line-height:1.2;padding:0 0 8px;height:auto;overflow:visible}
+.adder{background:#fff;border:1px solid var(--line);border-radius:16px}
+textarea{background:#fff}
+.menucard{background:#fff;border:1px solid var(--line)}
+.fill{background:var(--soft)}
+.tbox{background:#fff;border:1px solid var(--line)}
+.chat-head{background:#fff;border-bottom:1px solid var(--line)}
+.chat-log .user,.chat .user{background:var(--soft)}
+.seg,.pmodes{border-color:var(--line)}
+.seg button.on,.pmodes button.on{background:var(--fresh);color:var(--herb)}
+.dish .ctl .seg{border-radius:999px;overflow:hidden}
+.ticket.dish .row button.ghost{border-color:var(--line)}
+.stale{background:#fbf7ee}
+.sample{background:#fff}
+.notes p{background:var(--soft)}
+.course .sugg{background:var(--soft)}
+.start{background:#fff}
+#mealCards .mcard{background:#f8f0f2}
+#mealCards .mcard:nth-child(3n+2){background:#f1f4ed}
+#mealCards .mcard:nth-child(3n+3){background:#faf5ea}
+.fab{box-shadow:0 6px 18px rgba(31,27,24,.18)}
+nav a small{color:#a39b93}
 </style>
 </head>
 <body>
