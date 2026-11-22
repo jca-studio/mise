@@ -17,6 +17,7 @@
 --tom:#e4532a;--tomInk:#fff;--herb:#2e7d4f;--saf:#f4c430;--fresh:#dff1e4;--warn:#fff3c4;
 --cobalt:#2f57c9;--blush:#f7b9ae;--sky:#e4ecff}
 *{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Public Sans",system-ui,sans-serif;overflow-x:clip}
 h1,h2,h3{font-family:Archivo,system-ui,sans-serif;line-height:1.1;margin:0;text-wrap:balance}
 .wrap{max-width:760px;margin:0 auto;padding:0 max(4vw,16px)}
@@ -157,6 +158,24 @@ body.cooking main{padding-bottom:120px}
 .notes-ed ul{list-style:none;margin:0;padding:0}
 .suggest{background:var(--warn);border-radius:12px;padding:10px 12px;margin-top:10px;font-size:14px;display:flex;justify-content:space-between;gap:10px;align-items:center}
 .temps-log{font-size:14px;color:var(--mute)}
+/* Ask Mise chat */
+.fab{position:fixed;right:max(16px,2vw);bottom:calc(18px + env(safe-area-inset-bottom));z-index:7;background:var(--cobalt);color:#fff;border-radius:99px;padding:0 22px;min-height:52px;font-size:16px;box-shadow:0 8px 24px rgba(47,87,201,.35)}
+body.cooking .fab{bottom:calc(84px + env(safe-area-inset-bottom))}
+body.chatting .fab{display:none}
+.chat-panel{position:fixed;top:0;right:0;bottom:0;z-index:8;width:min(440px,100vw);background:#fff;border-left:1px solid var(--line);box-shadow:-12px 0 40px rgba(42,29,24,.12);display:flex;flex-direction:column}
+.chat-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--sky)}
+.chat-head b{display:block;font:800 18px Archivo,system-ui,sans-serif;color:var(--cobalt)}
+.chat-head span{font-size:13px;color:var(--mute)}
+.chat-log{flex:1;overflow-y:auto;padding:14px 16px}
+.chat-log .msg{max-width:88%}
+.chat-log .user{background:var(--sky)}
+.chat-log .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chat-log .chips button{min-height:38px;font-size:14px;text-align:left}
+.chat-in{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--line)}
+.chat-in input[type=text]{flex:1;font:16px "Public Sans",system-ui,sans-serif;padding:10px 12px;border-radius:12px;border:1px solid var(--line);min-height:46px}
+.chat-in button,.chat-in .btn{min-height:46px;padding:0 12px}
+.chat-speak{display:flex;gap:6px;align-items:center;padding:0 14px calc(10px + env(safe-area-inset-bottom));margin:0}
+@media(min-width:1100px){body.chatting .wide,body.chatting main,body.chatting header .wrap,body.chatting nav .wrap{margin-right:440px}}
 /* home: meal cards */
 .wide{padding:0 max(4vw,16px)}
 #home,#party{padding-top:32px;padding-bottom:60px}
@@ -317,6 +336,18 @@ body:not(.rec) #rec{display:none}
   <button id="sendBtn">Send</button>
 </div></div>
 <div class="toast" id="toast" hidden></div>
+<button class="fab" id="fab" data-act="chat-open">Ask Mise</button>
+<aside class="chat-panel" id="chat" hidden aria-label="Ask Mise">
+  <div class="chat-head"><div><b>Ask Mise</b><span id="chatWho"></span></div><button class="rm" data-act="chat-close" aria-label="Close">✕</button></div>
+  <div class="chat-log chat" id="chatLog"></div>
+  <div class="chat-in">
+    <input type="text" id="chatIn" placeholder="Pairings, pacing, swaps…" enterkeyhint="send" aria-label="Message">
+    <button class="ghost mic" id="chatMic" aria-label="Speak">🎙</button>
+    <label class="btn ghost" for="chatPhoto" aria-label="Add a photo">📷</label><input type="file" id="chatPhoto" accept="image/*">
+    <button id="chatSendBtn">Send</button>
+  </div>
+  <label class="hint chat-speak"><input type="checkbox" data-act="speak" style="width:18px;height:18px"> Read replies aloud</label>
+</aside>
 
 <script>
 {
@@ -462,6 +493,11 @@ BR({id:"b-peapasta",title:"Mushy pea pasta",course:"Main course",servings:4,acti
   "Turn into a serving dish and top with mint and [[10]] chives."],
  finish:"Pea sauce goes in at the very end, then straight out of the pot.",hold:"Serve right away; the peas brown if held hot."})];
 
+/* Thanksgiving 2026 additions: link only; the app reads each page the first time the meal opens */
+const TG26=[["Fennel salad","Salad","https://pamelasalzman.com/fennel-salad-recipe/"],
+["Green bean casserole","Side","https://cafehailee.com/recipes/green-bean-casserole/"],
+["5-ingredient corn casserole","Side","https://www.tastesoflizzyt.com/5-ingredient-corn-casserole/"],
+["Brown sugar sweet potatoes with melted shallots and pecans","Side","https://cafehailee.com/recipes/brown-sugar-sweet-potatoes-with-melted-shallots-and-pecans/"]];
 /* Christmas 2024: the menu from Jenna's notes; recipes to fill in or load from their links */
 const XD=(title,course,o={})=>BR({id:"x-"+title.toLowerCase().replace(/[^a-z]+/g,"-"),title,course,servings:o.servings||8,ingredients:o.ingredients||[],steps:o.steps||[],source:o.source||"",notes:o.notes||""});
 const XMAS={id:"christmas-2024",done:true,
@@ -514,6 +550,18 @@ function seed(db){
   db.bank=db.bank||[];
   if(!db.seeded.bank){for(const r of BANK_SEED)if(!db.bank.some(b=>b.id===r.id))db.bank.push(JSON.parse(JSON.stringify(r)));db.seeded.bank=1}
   if(!db.seeded.xmas24){db.meals.push(JSON.parse(JSON.stringify(XMAS)));db.seeded.xmas24=1}
+  if(!db.seeded.tg26){
+    let m=db.meals.find(x=>!x.sample&&/thanksgiving/i.test(x.meal.name||"")&&/^2026-11/.test(x.meal.serveAt||""));
+    if(!m){
+      /* the demo Thanksgiving goes; the real one takes its place */
+      db.meals=db.meals.filter(x=>!x.sample);
+      m={id:uid(),meal:{name:"Thanksgiving 2026",serveAt:"2026-11-26T16:00",guests:"",ovens:1,busy:""},recipes:[],plan:null,checks:{}};
+      db.meals.push(m);
+    }
+    for(const [title,course,url] of TG26)if(!m.recipes.some(r=>r.source===url))
+      m.recipes.push({...BR({id:uid(),title,course,source:url,servings:+m.meal.guests||8,ingredients:[],steps:[]}),target:+m.meal.guests||8});
+    db.seeded.tg26=1;
+  }
   if(!db.seeded.roast){db.meals.push(JSON.parse(JSON.stringify(ROAST)));db.seeded.roast=1}
   if(!db.seeded.notes){for(const n of ROAST_NOTES)if(!db.prefs.notes.includes(n))db.prefs.notes.push(n);
     if(!db.prefs.equipment)db.prefs.equipment=ROAST.live.equipment;db.seeded.notes=1}
@@ -618,6 +666,7 @@ function render(){
   $("sampleBar").innerHTML=S.sample?`<div class="sample"><span>Sample meal so you can see how it works.</span><button class="ghost" data-act="clear">Start my own</button></div>`:"";
   $("nR").textContent=S.recipes.length;
   countdown();renderRecipes();renderShop();renderPlan();renderCook();
+  if(view==="recipes")loadPending(S);
 }
 function countdown(){
   const el=$("countdown");if(!S.meal.serveAt){el.textContent="Set a serving time to build a plan.";return}
@@ -645,7 +694,7 @@ function renderRecipes(){
       </div>
       ${r.mode==="ahead"&&r.makeAhead?`<p class="ahead">${esc(r.makeAhead)}</p>`:""}
       ${r.notes?`<p class="ahead">${esc(r.notes)}</p>`:""}
-      ${!r.ingredients.length?(r.source?`<div class="row" style="margin:0"><button class="ghost" data-act="loadlink">Load recipe from link</button><span class="status" id="ll-${r.id}" style="margin:0"></span></div>`:`<p class="ahead">No recipe saved yet. Paste one above, or tell Mise how you make it.</p>`):""}
+      ${!r.ingredients.length?(r.source?`<div class="row" style="margin:0">${loadingIds.has(r.id)?`<span class="status" id="ll-${r.id}" style="margin:0"><span class="spin" style="display:inline-block;vertical-align:-3px"></span> Loading the recipe from the site…</span>`:`<button class="ghost" data-act="loadlink">Load recipe from link</button><span class="status" id="ll-${r.id}" style="margin:0"></span>`}</div>`:`<p class="ahead">No recipe saved yet. Paste one above, or tell Mise how you make it.</p>`):""}
     </div>
     <details><summary>Ingredients and instructions</summary><div class="body">
       ${k!==1?`<p class="hint">Scaled from ${r.servings} to ${r.target} servings.</p>`:""}
@@ -1011,14 +1060,14 @@ setInterval(checkReminders,15000);
 
 /* voice input */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null;
-function toggleMic(){
+function toggleMic(inputId="say",btnId="mic",send=liveSend){
   if(!SR){toast("Voice input isn't supported in this browser. Try Chrome or Safari.");return}
   if(rec){rec.stop();return}
   rec=new SR();rec.lang="en-US";rec.interimResults=true;rec.continuous=false;
-  $("mic").classList.add("on");
-  rec.onresult=e=>{const r=[...e.results].map(x=>x[0].transcript).join("");$("say").value=r;if(e.results[e.results.length-1].isFinal){const t=r;$("say").value="";liveSend(t)}};
-  rec.onend=rec.onerror=()=>{rec=null;$("mic").classList.remove("on")};
-  try{rec.start()}catch(e){rec=null;$("mic").classList.remove("on")}
+  $(btnId).classList.add("on");
+  rec.onresult=e=>{const r=[...e.results].map(x=>x[0].transcript).join("");$(inputId).value=r;if(e.results[e.results.length-1].isFinal){$(inputId).value="";send(r)}};
+  rec.onend=rec.onerror=()=>{rec=null;$(btnId).classList.remove("on")};
+  try{rec.start()}catch(e){rec=null;$(btnId).classList.remove("on")}
 }
 
 /* ---------- Cook tab ---------- */
@@ -1027,6 +1076,7 @@ function renderCook(){
   const cooking=lv.status==="cooking";
   document.body.classList.toggle("cooking",cooking&&view==="cook");
   $("cmd").hidden=!(cooking&&view==="cook");
+  $("fab").hidden=cooking&&view==="cook";
   if(lv.status==="idle"){
     el.innerHTML=`<div class="adder setup">
       <h2 style="font-size:24px">Live cooking</h2>
@@ -1210,6 +1260,15 @@ async function loadFromLink(r,statusId){
     save();status(statusId,"");return true;
   }catch(e){status(statusId,e.message||"Couldn't load it.",1);return false}
 }
+const loadingIds=new Set();
+async function loadPending(m){
+  for(const r of m.recipes){
+    if(!r.source||r.ingredients.length||r.loadTried||loadingIds.has(r.id))continue;
+    loadingIds.add(r.id);r.loadTried=true;if(m===S&&view==="recipes")renderRecipes();
+    await loadFromLink(r,"ll-"+r.id);
+    loadingIds.delete(r.id);save();if(m===S&&view!=="meals")render();
+  }
+}
 function renderBankTiles(){
   $("bankCards").innerHTML=BANK().map(r=>`<button class="mcard btile" data-rec="${esc(r.id)}"><span class="ctag">${esc(r.course||"Recipe")}</span><b>${esc(r.title)}</b><span>${r.totalMin?mins(r.totalMin):""}${r.servings?` · serves ${r.servings}`:""}</span></button>`).join("")
     +`<button class="mcard new" data-act="bank-new">+ Add a recipe</button>`;
@@ -1260,6 +1319,50 @@ async function bankSave(){
   }catch(e){status("bankStatus",e.message||"Couldn't save it.",1)}
 }
 
+/* ---------- Ask Mise: chat anywhere ---------- */
+function chatThread(){if(S&&view!=="meals"&&view!=="party"&&view!=="rec"){S.talk=S.talk||[];return S.talk}DB.talk=DB.talk||[];return DB.talk}
+function chatContext(){
+  const base={now:localISO(),kitchenNotes:DB.prefs.notes,equipment:DB.prefs.equipment,recipeBank:BANK().map(b=>b.title)};
+  if(!S||["meals","party","rec"].includes(view))return {...base,openMeal:null,meals:DB.meals.map(m=>({name:m.meal.name,serving:m.meal.serveAt||m.meal.when||"",dishes:m.recipes.filter(r=>!r.removed).map(r=>r.title)}))};
+  return {...base,openMeal:{name:S.meal.name,serving:S.meal.serveAt,guests:S.meal.guests,ovens:S.meal.ovens,notAvailable:S.meal.busy,
+    dishes:activeDishes().map(r=>{const k=scale(r);return {title:r.title,course:r.course,mode:r.mode,servings:r.target,activeMin:r.activeMin,totalMin:r.totalMin,ovenTempF:r.ovenTempF,
+      ingredients:r.ingredients.map(i=>ingText(i,k)),steps:r.steps.map(s=>stepText(r,s,k)),makeAhead:r.makeAhead,finish:r.finish,hold:r.hold,source:r.source}}),
+    prepPlan:S.plan?S.plan.tasks.map(t=>`${t.at} ${t.recipe?t.recipe+": ":""}${t.what}`):null,
+    liveCooking:S.live.status==="cooking"?{estimate:S.live.estimate,tasks:S.live.tasks.filter(t=>!t.done).map(t=>`${t.at||t.when} ${t.what}`),recent:S.live.events.slice(-8).map(e=>e.text)}:null}};
+}
+const CHAT_RULES=`You are Mise, a warm, expert chef and dinner-party host talking with a home cook, often while they're cooking. Help with anything food: wine, cocktail and non-alcoholic pairings, pacing and timing, what to make ahead, substitutions, scaling, technique, rescuing mistakes, food safety, plating, menu balance, how much to buy.
+- Lead with the answer in a sentence or two, then any useful detail. Be specific: amounts, times, temperatures, bottle styles.
+- Use the open meal and the kitchen notes; don't make the cook repeat what's already there. Resolve short references from the recent conversation.
+- For a photo, say what you can see and what you can't tell without more information.
+- Food safety outranks the schedule. Never give false certainty about doneness or timing.
+- You can't edit the meal from this chat. If they want a change, tell them the quickest way in the app (Recipes tab to add or remove, Prep plan to rebuild, Cook tab to run the day).
+- If they tell you a lasting preference, offer it in remember.
+Return JSON only: {"reply":string (use \\n for line breaks and **bold** sparingly),"remember":[] or notes to offer saving}`;
+let chatBusy=false;
+function fmtChat(t){return esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>")}
+function renderChat(){
+  const th=chatThread(),inMeal=S&&!["meals","party","rec"].includes(view);
+  $("chatWho").textContent=inMeal?(S.meal.name||"This meal"):"Anything food";
+  const sugg=inMeal?["What wine goes with this menu?","How should I pace the day?","What can I make ahead?","How much should I buy for "+(S.meal.guests||8)+"?"]:["What wine goes with roast pork?","Help me plan a menu for 8","What can I make ahead for a dinner party?"];
+  $("chatLog").innerHTML=(th.length?th.slice(-40).map(c=>`<div class="msg ${c.role}">${c.role==="ai"?fmtChat(c.text):esc(c.text)}${c.suggest?c.suggest.map((n,i)=>`<div class="suggest" style="margin-top:8px"><span>Remember “${esc(n)}”?</span><button class="ghost" data-chatkeep="${esc(n)}" style="min-height:34px;font-size:13px">Save</button></div>`).join(""):""}</div>`).join("")
+    :`<p class="hint">Ask about pairings, pacing, substitutions, technique, anything.${inMeal?" I can see this meal's recipes and plan.":""}</p>`)
+    +(chatBusy?`<div class="msg ai"><span class="spin" style="display:inline-block"></span></div>`:"")
+    +(!th.length&&!chatBusy?`<div class="chips">${sugg.map(s=>`<button class="ghost" data-chatq="${esc(s)}">${esc(s)}</button>`).join("")}</div>`:"");
+  $("chatLog").scrollTop=$("chatLog").scrollHeight;
+}
+function openChat(open){$("chat").hidden=!open;$("chat").querySelector("[data-act=speak]").checked=!!DB.prefs.speak;document.body.classList.toggle("chatting",open);if(open){renderChat();setTimeout(()=>$("chatIn").focus(),50)}}
+async function chatSend(text,images){
+  text=(text||"").trim();if((!text&&!(images&&images.length))||chatBusy)return;
+  const th=chatThread();th.push({role:"user",text:text||"(photo)",at:localISO()});chatBusy=true;save();renderChat();
+  try{
+    const out=await claude.json(`${CHAT_RULES}\n\nCONTEXT (JSON):\n${JSON.stringify(chatContext())}\n\nRECENT CONVERSATION:\n${th.slice(-12,-1).map(c=>(c.role==="user"?"Cook: ":"You: ")+c.text).join("\n")}\n\nTHE COOK SAYS: ${text||"(see photo)"}`,{modelTier:"default",images});
+    const rem=(out&&out.remember||[]).filter(n=>n&&!DB.prefs.notes.includes(n));
+    th.push({role:"ai",text:(out&&out.reply)||"Sorry, I lost that one. Ask again?",suggest:rem.length?rem:null,at:localISO()});
+    speak(out&&out.reply);
+  }catch(e){th.push({role:"ai",text:e.code==="rate_limited"?"Too many requests just now. Try again in a minute.":(e.message||"I couldn't reach Claude. Try again."),at:localISO()})}
+  chatBusy=false;save();renderChat();
+}
+
 /* ---------- events ---------- */
 document.addEventListener("click",e=>{
   const a=e.target.closest("[data-act]");if(!a)return;
@@ -1278,6 +1381,8 @@ document.addEventListener("click",e=>{
   else if(act==="clear"){swapMeal(blankMeal());save();render();$("mealName").focus()}
   else if(act==="plan")buildPlan();
   else if(act==="startcook")startCooking();
+  else if(act==="chat-open")openChat(true);
+  else if(act==="chat-close")openChat(false);
   else if(act==="party-links")newDraft("links");
   else if(act==="party-surprise")newDraft("surprise");
   else if(act==="party-build")buildParty();
@@ -1327,9 +1432,18 @@ document.addEventListener("submit",e=>{
 });
 document.addEventListener("focusout",e=>{const n=e.target.dataset&&e.target.dataset.note;if(n===undefined)return;const v=e.target.textContent.trim();if(v)DB.prefs.notes[+n]=v;else DB.prefs.notes.splice(+n,1);save();renderNotes()});
 document.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.refl;if(!k)return;S.live.reflection=S.live.reflection||{};S.live.reflection[k]=e.target.value;save()});
+$("chatSendBtn").addEventListener("click",()=>{const t=$("chatIn").value;$("chatIn").value="";chatSend(t)});
+$("chatIn").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("chatSendBtn").click()}});
+$("chatPhoto").addEventListener("change",()=>{const f=[...$("chatPhoto").files];$("chatPhoto").value="";if(!f.length)return;const t=$("chatIn").value;$("chatIn").value="";chatSend(t||"What can you tell from this photo?",f)});
+$("chatMic").addEventListener("click",()=>toggleMic("chatIn","chatMic",chatSend));
+document.addEventListener("click",e=>{
+  const q=e.target.closest("[data-chatq]");if(q){chatSend(q.dataset.chatq);return}
+  const k=e.target.closest("[data-chatkeep]");if(k){const n=k.dataset.chatkeep;if(!DB.prefs.notes.includes(n))DB.prefs.notes.push(n);
+    for(const c of chatThread())if(c.suggest)c.suggest=c.suggest.filter(x=>x!==n);save();renderChat();toast("Saved to kitchen notes.")}
+});
 $("sendBtn").addEventListener("click",()=>{const t=$("say").value;$("say").value="";liveSend(t)});
 $("say").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("sendBtn").click()}});
-$("mic").addEventListener("click",toggleMic);
+$("mic").addEventListener("click",()=>toggleMic());
 $("cmdPhoto").addEventListener("change",async()=>{const f=[...$("cmdPhoto").files];$("cmdPhoto").value="";if(!f.length)return;const t=$("say").value;$("say").value="";liveSend(t||"What can you tell from this photo, for what I'm cooking right now?",f)});
 document.addEventListener("click",e=>{const c=e.target.closest("[data-rec]");if(c)openRec(c.dataset.rec)});
 document.addEventListener("click",e=>{const c=e.target.closest("[data-open]");if(!c)return;const m=DB.meals.find(x=>x.id===c.dataset.open);if(m)openMeal(m)});
@@ -1353,7 +1467,7 @@ $("copyShop").addEventListener("click",async()=>{
   try{await navigator.clipboard.writeText(txt);$("copyShop").textContent="Copied"}catch(err){$("copyShop").textContent="Couldn't copy"}
   setTimeout(()=>$("copyShop").textContent="Copy list",1600);
 });
-window.addEventListener("hashchange",()=>{view=(location.hash||"").slice(1);if(!VIEWS.includes(view)||(!S&&!["meals","party","rec"].includes(view)))view="meals";render();scrollTo(0,0)});
+window.addEventListener("hashchange",()=>{if(!$("chat").hidden)setTimeout(renderChat,0);$("fab").hidden=false;view=(location.hash||"").slice(1);if(!VIEWS.includes(view)||(!S&&!["meals","party","rec"].includes(view)))view="meals";render();scrollTo(0,0)});
 setInterval(()=>{if(view==="meals")renderHome();else{countdown();if(view==="prep")renderPlan()}},60000);
 render();
 }
