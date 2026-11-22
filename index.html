@@ -204,20 +204,35 @@ nav .navin a{flex:0 0 auto;padding:14px 18px}
 .meter .bar span{display:block;height:100%;border-radius:99px;background:var(--cobalt)}
 .meter:nth-child(odd) .bar span{background:var(--herb)}
 .bal ul{list-style:disc;padding-left:18px;margin:8px 0 0}.bal ul li{font-size:14px}
+.fills{display:grid;gap:8px;margin-top:10px}
+.fill{background:var(--fresh);border-radius:12px;padding:10px 12px}
+.fill b{display:block;font:800 16px Archivo,system-ui,sans-serif}
+.fill p{margin:2px 0 6px;font-size:13px;color:var(--mute)}
+.fill .row{margin:0}
 @media(min-width:1000px){
   .hgrid{grid-template-columns:minmax(0,1fr) 380px;gap:32px}
   .menucard{margin-bottom:-3000px;max-height:calc(100vh - 40px);overflow:auto}
   nav .navin,main.mainin{margin-right:412px}
 }
 /* recipe list rows */
-.ticket.dish{display:grid;grid-template-columns:150px minmax(0,1fr);gap:22px;border:0;border-top:1px solid var(--line);border-radius:0;margin:0;padding:18px 0;overflow:visible}
+.ticket.dish{display:grid;grid-template-columns:130px minmax(0,1fr);gap:18px;border:0;border-top:1px solid var(--line);border-radius:0;margin:0;padding:10px 0;overflow:visible}
+.dish .top>div:first-child{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 14px}
+.dish .meta{font-size:13px}
+.dish .ctl{gap:6px 10px}
+.dish .seg button{min-height:32px;font-size:13px;padding:0 10px}
+.dish .ctl label{font-size:13px}
+.dish .ctl input[type=number]{min-height:32px;width:56px;padding:2px 8px}
+.dish .rm{min-height:30px;font-size:12px}
+.dish .ahead{font-size:13px}
+.dish .row{margin:0}.dish .row button{min-height:32px;font-size:13px}
 .ticket.dish:nth-child(even){border-left:0}
-.dish .top{padding:0;gap:8px}
-.dish details{border-top:0}.dish summary{padding:6px 0;min-height:36px;color:var(--cobalt)}
+.dish .top{padding:0;gap:4px}
+.dish details{border-top:0}.dish summary{padding:2px 0;min-height:28px;font-size:13px;color:var(--cobalt)}
 .dish .body{padding:0 0 4px}
 .dcourse select{appearance:none;-webkit-appearance:none;border:0;background:none;font:800 13px Archivo,system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--tom);padding:4px 0;cursor:pointer;max-width:100%}
 .dcourse select:hover{color:var(--cobalt)}
-.dish h3{font-size:21px}
+.dish h3{font-size:18px}
+.dcourse select{padding-top:3px}
 @media(max-width:700px){.ticket.dish{grid-template-columns:1fr;gap:4px}}
 /* kitchen spaces */
 body.space header,body.space nav,body.space main{display:none}
@@ -372,7 +387,7 @@ body:not(.rec) #rec{display:none}
   <section class="view" id="v-shopping">
     <div class="row" style="margin-top:0;justify-content:space-between">
       <span class="hint" id="shopHint" style="margin:0"></span>
-      <button class="ghost" id="copyShop">Copy list</button>
+      <span class="row" style="margin:0"><button class="ghost" id="copyShop">Copy list</button><button data-act="instacart" id="icBtn" style="background:#0aad0a">Shop on Instacart</button></span>
     </div>
     <div id="shopList"></div>
   </section>
@@ -851,6 +866,22 @@ function shopItems(){
       e.fresh=e.fresh||!!i.fresh;e.from.add(r.title);map.set(key,e);
     }}
   return [...map.values()];
+}
+const IC_UNITS={cup:"cup",cups:"cup",tbsp:"tablespoon",tsp:"teaspoon",lb:"pound",lbs:"pound",oz:"ounce",g:"gram",kg:"kilogram",ml:"milliliter",l:"liter",can:"can",cans:"can",bunch:"bunch",clove:"clove",cloves:"clove",pinch:"pinch","":"each"};
+async function toInstacart(){
+  const items=shopItems().filter(i=>!S.checks["s:"+i.key]);if(!items.length){toast("Nothing left to buy.");return}
+  const b=$("icBtn");b.disabled=true;b.innerHTML='<span class="spin"></span> Building list…';
+  const win=window.open("","_blank");
+  try{
+    const r=await fetch("/api/instacart",{method:"POST",headers:{"content-type":"application/json","x-mise-pass":getPass()},
+      body:JSON.stringify({title:(S.meal.name||"Dinner party")+" · Mise",linkback:location.origin,items:items.map(i=>({name:i.item,display:(i.hasQty?fq(i.qty)+(i.unit?" "+i.unit:"")+" ":"")+i.item,qty:i.hasQty?i.qty:0,unit:IC_UNITS[(i.unit||"").toLowerCase()]||i.unit||"each"}))})});
+    const out=await r.json().catch(()=>({}));
+    if(r.status===501)throw {message:"Instacart isn't connected yet. It needs an Instacart Developer Platform key added in Vercel."};
+    if(r.status===401)throw {message:"Add a recipe or ask Mise something first so it can ask for your passcode."};
+    if(!r.ok||!out.url)throw {message:out.error||"Instacart didn't send a link back."};
+    if(win)win.location=out.url;else location.href=out.url;
+  }catch(e){if(win)win.close();toast(e.message||"Couldn't reach Instacart.")}
+  b.disabled=false;b.textContent="Shop on Instacart";
 }
 function renderShop(){
   const items=shopItems(),anyAhead=S.recipes.some(r=>r.mode==="ahead");
@@ -1547,9 +1578,31 @@ function renderMenu(){
         <div>${(b.scores||[]).map(s=>`<div class="meter" title="${esc(s.note||"")}"><span>${esc(s.label)}</span><div class="bar"><span style="width:${Math.max(4,Math.min(100,(+s.value||0)*20))}%"></span></div></div>`).join("")}</div>
         ${(b.suggestions||[]).length?`<ul>${b.suggestions.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
         ${stale?`<p class="hint" style="color:#8a5a00">The menu changed since this check.</p>`:""}`:`<p class="hint" style="margin:0 0 8px">Mise looks at richness, vegetables, starch, color and texture, and whether everything fits your kitchen.</p>`}
-      <div class="row" style="margin-top:8px"><button class="ghost" data-act="balance" style="min-height:38px;font-size:14px">${balBusy?'<span class="spin"></span> Checking…':b?"Check again":"Check the balance"}</button><span class="status" id="balStatus" style="margin:0"></span></div></div>`:""}`;
+      <div class="row" style="margin-top:8px"><button class="ghost" data-act="balance" style="min-height:38px;font-size:14px">${balBusy?'<span class="spin"></span> Checking…':b?"Check again":"Check the balance"}</button>
+        <button data-act="fillgap" style="min-height:38px;font-size:14px;background:var(--herb)">${fillBusy?'<span class="spin"></span> Thinking…':"Fill the gaps"}</button><span class="status" id="balStatus" style="margin:0"></span></div>
+      ${(S.fills||[]).length?`<div class="fills">${S.fills.map((f,i)=>`<div class="fill"><span class="ctag">${esc(f.recipe.course||"Suggestion")}</span><b>${esc(f.recipe.title)}</b><p>${esc(f.why||"")}</p><div class="row"><button data-fill="${i}" style="min-height:34px;font-size:13px">Add to menu</button><button class="rm" data-fillskip="${i}">Not this</button></div></div>`).join("")}</div>`:""}
+      </div>`:""}`;
 }
-let balBusy=false;
+let balBusy=false,fillBusy=false;
+async function fillGaps(){
+  if(fillBusy)return;fillBusy=true;renderMenu();
+  const dishes=activeDishes().map(r=>({title:r.title,course:r.course,mode:r.mode,ovenTempF:r.ovenTempF,keyIngredients:r.ingredients.slice(0,8).map(i=>i.item)}));
+  const b=S.balance&&S.balance.sig===balSig()?S.balance:null;
+  try{
+    const out=await claude.json(`You are an experienced chef helping a home cook round out a dinner party menu for ${S.meal.guests||"several"} guests.
+Kitchen: ${spaceText(spaceOf(S))}. Kitchen notes: ${JSON.stringify(DB.prefs.notes)}. Their recipe bank: ${JSON.stringify(BANK().map(x=>x.title))}.
+Current menu: ${JSON.stringify(dishes)}
+${b?`Balance review: ${b.verdict}. ${b.summary} ${JSON.stringify(b.suggestions||[])}`:""}
+${(S.fills||[]).length?`Already suggested (don't repeat): ${S.fills.map(f=>f.recipe.title).join(", ")}.`:""}
+Suggest 1 to 3 dishes that would make this the best meal: fill what's missing (a classic the occasion expects, a fresh or acidic counterpoint, a green vegetable, a starch) and fix imbalance. Prefer dishes that use the stovetop, air fryer or Instant Pot or can be made ahead if the oven is crowded. Prefer a dish from their recipe bank if one fits.
+${GEN_RULES}
+Return JSON only: {"fills":[{"why":one short sentence on what gap it fills,"recipe":ONE recipe object with an added "course" field, in this shape: ${RECIPE_SHAPE}}]}`,{modelTier:"default"});
+    const fs=(out&&out.fills||[]).filter(f=>f&&f.recipe&&f.recipe.title);
+    if(!fs.length)throw {message:"No suggestions came back. Try again."};
+    S.fills=[...(S.fills||[]),...fs];save();
+  }catch(e){fillBusy=false;renderMenu();status("balStatus",e.message||"Couldn't get suggestions.",1);return}
+  fillBusy=false;renderMenu();
+}
 async function checkBalance(){
   if(balBusy)return;balBusy=true;renderMenu();
   const dishes=activeDishes().map(r=>({title:r.title,course:r.course,mode:r.mode,ovenTempF:r.ovenTempF,totalMin:r.totalMin,keyIngredients:r.ingredients.slice(0,10).map(i=>i.item)}));
@@ -1584,6 +1637,8 @@ document.addEventListener("click",e=>{
   else if(act==="plan")buildPlan();
   else if(act==="startcook")startCooking();
   else if(act==="balance")checkBalance();
+  else if(act==="fillgap")fillGaps();
+  else if(act==="instacart")toInstacart();
   else if(act==="space-edit")openSpace(spaceOf(S).id);
   else if(act==="space-cancel"){DB.spaceDraft=null;save();go(DB.spaceReturn||"meals")}
   else if(act==="space-addrow"){DB.spaceDraft.appliances.push({name:"",detail:"",count:1});renderSpace();const ins=document.querySelectorAll("[data-ap=name]");ins[ins.length-1].focus()}
@@ -1656,10 +1711,15 @@ $("say").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$
 $("mic").addEventListener("click",()=>toggleMic());
 $("cmdPhoto").addEventListener("change",async()=>{const f=[...$("cmdPhoto").files];$("cmdPhoto").value="";if(!f.length)return;const t=$("say").value;$("say").value="";liveSend(t||"What can you tell from this photo, for what I'm cooking right now?",f)});
 document.addEventListener("click",e=>{
+  const fa=e.target.closest("[data-fill],[data-fillskip]");
+  if(fa&&S&&S.fills){const i=+(fa.dataset.fill??fa.dataset.fillskip),f=S.fills[i];
+    if(fa.dataset.fill!==undefined&&f){S.recipes.push(toRecipe(f.recipe,S.meal.guests,f.recipe.course||""));toast(`Added ${f.recipe.title} to the menu.`)}
+    S.fills.splice(i,1);save();render();return}
   const g=e.target.closest("[data-goto]");
   if(g){const id=g.dataset.goto;go("recipes");setTimeout(()=>{const el=document.querySelector(`.ticket[data-id="${id}"]`);if(el){el.scrollIntoView({behavior:"smooth",block:"start"});const d=el.querySelector("details");if(d)d.open=true}},60);return}
   const x=e.target.closest("[data-apdel]");if(x&&DB.spaceDraft){DB.spaceDraft.appliances.splice(+x.dataset.apdel,1);save();renderSpace()}
 });
+document.addEventListener("input",e=>{const t=e.target;if(S&&(t.id==="serveAt"&&t.value)){S.meal.serveAt=t.value;save();countdown()}});
 document.addEventListener("input",e=>{const t=e.target,d=DB.spaceDraft;if(!d||view!=="space")return;
   if(t.dataset.sp)d[t.dataset.sp]=t.value;else if(t.dataset.ap){const a=d.appliances[+t.dataset.i];if(a)a[t.dataset.ap]=t.dataset.ap==="count"?+t.value||1:t.value}else if(t.id==="spaceDesc")d.desc=t.value;else return;save()});
 document.addEventListener("click",e=>{const c=e.target.closest("[data-rec]");if(c)openRec(c.dataset.rec)});

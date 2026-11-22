@@ -20,6 +20,7 @@ Reference scenario: the "Sunday Roast: Pork (Autumn)" meal card.
 2. Under **Settings → Environment Variables**, add:
    - `ANTHROPIC_API_KEY`: your key from console.anthropic.com
    - `APP_PASSCODE`: any passcode you choose. The app asks for it once on each device, so strangers who find the URL can't use your credits.
+   - Optional: `INSTACART_API_KEY` from the Instacart Developer Platform turns on **Shop on Instacart**. Add `INSTACART_ENV=production` once Instacart approves the key (until then it uses their dev sandbox).
    - Optional: `MISE_MODEL_DEFAULT` (default `claude-sonnet-5-5`, used to read recipes) and `MISE_MODEL_COMPLEX` (default `claude-opus-5-5`, used for the prep plan)
 3. Redeploy so the variables take effect.
 
